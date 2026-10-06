@@ -1,0 +1,129 @@
+{
+  "configuration_version": "1.0.0",
+  "created_at": "2026-10-06T22:12:00Z",
+  "description": "Formal operational configuration definitions for CodeMind AI baselines (B0-B3), proposed system (P), and evaluation ablations (A1-A5).",
+  "baselines": {
+    "B0": {
+      "name": "Zero Context",
+      "description": "No repository retrieval. Only evaluate metrics for which B0 produces a comparable output; otherwise report N/A.",
+      "components": {
+        "retrieval": "NONE",
+        "reuse_engine": "NONE",
+        "security_analysis": "NONE",
+        "architecture_analysis": "NONE",
+        "grounding_selection": "NONE"
+      },
+      "applicable_evaluation_types": [
+        "REUSE_DECISION_BASELINE",
+        "GROUNDED_REASONING_BASELINE",
+        "CONTEXT_EFFICIENCY"
+      ]
+    },
+    "B1": {
+      "name": "Lexical Retrieval",
+      "description": "PostgreSQL lexical search (tsvector / keyword match) only.",
+      "components": {
+        "retrieval": "LEXICAL_ONLY",
+        "reuse_engine": "NONE",
+        "security_analysis": "NONE",
+        "architecture_analysis": "NONE",
+        "grounding_selection": "NONE"
+      },
+      "applicable_evaluation_types": [
+        "RETRIEVAL",
+        "CONTEXT_EFFICIENCY"
+      ]
+    },
+    "B2": {
+      "name": "Hybrid Retrieval",
+      "description": "Lexical + semantic vector retrieval combined via Reciprocal Rank Fusion (RRF). No reuse scoring, security gating, architecture evidence, or grounded selection.",
+      "components": {
+        "retrieval": "HYBRID_RRF",
+        "reuse_engine": "NONE",
+        "security_analysis": "NONE",
+        "architecture_analysis": "NONE",
+        "grounding_selection": "NONE"
+      },
+      "applicable_evaluation_types": [
+        "RETRIEVAL",
+        "CONTEXT_EFFICIENCY"
+      ]
+    },
+    "B3": {
+      "name": "Retrieval + Basic Reuse",
+      "description": "Hybrid retrieval paired with naive syntactic similarity reuse scoring. Lacks multi-criteria 8D evaluation and hard security gating.",
+      "components": {
+        "retrieval": "HYBRID_RRF",
+        "reuse_engine": "BASIC_SYNTACTIC",
+        "security_analysis": "NONE",
+        "architecture_analysis": "NONE",
+        "grounding_selection": "NONE"
+      },
+      "applicable_evaluation_types": [
+        "REUSE_DECISION",
+        "CONTEXT_EFFICIENCY"
+      ]
+    },
+    "P": {
+      "name": "Proposed Complete System",
+      "description": "Authoritative deterministic engine: Hybrid RRF retrieval, 8-dimensional multi-criteria reuse evaluation, hard security gating (CRITICAL/HIGH -> BLOCKED), architecture coupling intelligence, and bounded grounded reasoning evidence selection.",
+      "components": {
+        "retrieval": "HYBRID_RRF",
+        "reuse_engine": "FULL_8D_MULTI_CRITERIA",
+        "security_analysis": "DETERMINISTIC_GATED_CRITICAL_HIGH",
+        "architecture_analysis": "COUPLING_AND_CYCLES",
+        "grounding_selection": "BOUNDED_EVIDENCE_CHUNKS"
+      },
+      "applicable_evaluation_types": [
+        "RETRIEVAL",
+        "REUSE_DECISION",
+        "SECURITY_DETECTION",
+        "ARCHITECTURE_INTELLIGENCE",
+        "GROUNDED_REASONING",
+        "CONTEXT_EFFICIENCY"
+      ]
+    }
+  },
+  "ablations": {
+    "A1": {
+      "name": "P without Semantic Retrieval",
+      "description": "Ablates semantic vector search; relies solely on lexical retrieval in the hybrid stage.",
+      "ablated_component": "retrieval.semantic",
+      "modified_components": {
+        "retrieval": "LEXICAL_ONLY"
+      }
+    },
+    "A2": {
+      "name": "P without Reuse Scoring",
+      "description": "Ablates deterministic reuse evaluation; attempts unguided decision directly from top retrieved candidates.",
+      "ablated_component": "reuse_engine",
+      "modified_components": {
+        "reuse_engine": "NONE"
+      }
+    },
+    "A3": {
+      "name": "P without Security Gating",
+      "description": "Simulated evaluation ablation: removes hard security blocker (HIGH/CRITICAL severity no longer forces BLOCKED status) to measure safety degradation.",
+      "ablated_component": "security_analysis.gating",
+      "modified_components": {
+        "security_analysis": "UNCHECKED_ADVISORY_ONLY"
+      }
+    },
+    "A4": {
+      "name": "P without Architecture Intelligence",
+      "description": "Ablates architecture coupling and cycle detection; evaluates reuse decisions without structural dependency penalties.",
+      "ablated_component": "architecture_analysis",
+      "modified_components": {
+        "architecture_analysis": "NONE"
+      }
+    },
+    "A5": {
+      "name": "P without Grounded Evidence Selection",
+      "description": "Ablates bounded evidence chunking and token optimization; injects unconstrained naive repository context.",
+      "ablated_component": "grounding_selection",
+      "modified_components": {
+        "grounding_selection": "RAW_UNCONSTRAINED_CONTEXT"
+      }
+    }
+  }
+}

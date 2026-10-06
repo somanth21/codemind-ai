@@ -1,0 +1,79 @@
+{
+  "dataset_version": "1.0.0",
+  "generated_at": "2026-10-06T22:09:00Z",
+  "description": "Ground-truth labeled retrieval query set for evaluating Lexical, Semantic, and Hybrid RRF symbol and evidence retrieval.",
+  "queries": [
+    {
+      "query_id": "RQ-001",
+      "repository": "SPRING-PETCLINIC",
+      "query": "Find the domain entity representing a veterinary doctor and their specialties.",
+      "relevant_files": ["src/main/java/org/springframework/samples/petclinic/vet/Vet.java"],
+      "relevant_symbols": ["Vet", "getSpecialties", "addSpecialty"],
+      "difficulty": "EASY",
+      "query_intent": "Exact entity class and collection methods"
+    },
+    {
+      "query_id": "RQ-002",
+      "repository": "SPRING-PETCLINIC",
+      "query": "Find owner search and pagination logic in web controller.",
+      "relevant_files": ["src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java"],
+      "relevant_symbols": ["OwnerController", "processFindForm", "findPaginatedForOwnersLastName"],
+      "difficulty": "MEDIUM",
+      "query_intent": "Web controller request handler for owner queries"
+    },
+    {
+      "query_id": "RQ-003",
+      "repository": "SPRING-PETCLINIC",
+      "query": "Find database repository contract for persisting and loading visit records.",
+      "relevant_files": ["src/main/java/org/springframework/samples/petclinic/owner/VisitRepository.java"],
+      "relevant_symbols": ["VisitRepository", "findByPetId", "save"],
+      "difficulty": "EASY",
+      "query_intent": "Spring Data interface for visit persistence"
+    },
+    {
+      "query_id": "RQ-004",
+      "repository": "COMMONS-LANG-SUBSET",
+      "query": "Check if a string is empty or contains only whitespace characters.",
+      "relevant_files": ["src/main/java/org/apache/commons/lang3/StringUtils.java"],
+      "relevant_symbols": ["StringUtils.isBlank", "StringUtils.isEmpty"],
+      "difficulty": "MEDIUM",
+      "query_intent": "Utility function for blank whitespace validation"
+    },
+    {
+      "query_id": "RQ-005",
+      "repository": "COMMONS-LANG-SUBSET",
+      "query": "Calculate the greatest common divisor using Euclidean algorithm.",
+      "relevant_files": ["src/main/java/org/apache/commons/lang3/math/NumberUtils.java"],
+      "relevant_symbols": ["MathUtils.gcd", "NumberUtils.gcd"],
+      "difficulty": "EASY",
+      "query_intent": "Mathematical algorithmic utility"
+    },
+    {
+      "query_id": "RQ-006",
+      "repository": "SYNTHETIC-MICRO-01",
+      "query": "Locate command execution utility that launches external operating system processes.",
+      "relevant_files": ["fixtures/SecurityPositiveFixtures.java"],
+      "relevant_symbols": ["SecurityPositiveFixtures.runCommand", "SecurityPositiveFixtures.runProcess"],
+      "difficulty": "MEDIUM",
+      "query_intent": "ProcessBuilder or Runtime.exec process execution helper"
+    },
+    {
+      "query_id": "RQ-007",
+      "repository": "SYNTHETIC-MICRO-01",
+      "query": "Find file resolution method with path boundary verification.",
+      "relevant_files": ["fixtures/SecurityNegativeFixtures.java"],
+      "relevant_symbols": ["SecurityNegativeFixtures.getSafePath"],
+      "difficulty": "HARD",
+      "query_intent": "Safe path normalization and traversal check"
+    },
+    {
+      "query_id": "RQ-008",
+      "repository": "SPRING-PETCLINIC",
+      "query": "Find model attribute formatter for PetType binding in forms.",
+      "relevant_files": ["src/main/java/org/springframework/samples/petclinic/owner/PetTypeFormatter.java"],
+      "relevant_symbols": ["PetTypeFormatter", "parse", "print"],
+      "difficulty": "HARD",
+      "query_intent": "Spring Formatter SPI implementation for web binding"
+    }
+  ]
+}

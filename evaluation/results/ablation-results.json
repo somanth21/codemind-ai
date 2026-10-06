@@ -1,0 +1,314 @@
+{
+  "provenance": {
+    "dataset_version": "1.0.0",
+    "case_id": "ALL_ABLATIONS",
+    "system_configuration": "ABLATION_SUITE",
+    "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+    "timestamp": "2026-10-06T16:53:56.188616+00:00",
+    "metric_definition_version": "1.0.0"
+  },
+  "configurations": {
+    "B0": {
+      "name": "Zero Context",
+      "type": "BASELINE",
+      "retrieval_ndcg5": "N/A",
+      "decision_accuracy_pct": 25.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 1.0,
+      "context_reduction_pct": 100.0,
+      "summary": "Cannot assist with codebase reuse; defaults to greenfield creation for everything."
+    },
+    "B1": {
+      "name": "Lexical Retrieval Only",
+      "type": "BASELINE",
+      "retrieval_ndcg5": 0.6675,
+      "decision_accuracy_pct": "N/A",
+      "security_violations": "N/A",
+      "unsupported_claim_rate": "N/A",
+      "context_reduction_pct": 0.0,
+      "summary": "Suffers from vocabulary mismatch on paraphrased developer queries."
+    },
+    "B2": {
+      "name": "Hybrid Retrieval (No Reuse/Security)",
+      "type": "BASELINE",
+      "retrieval_ndcg5": 0.7883,
+      "decision_accuracy_pct": "N/A",
+      "security_violations": "N/A",
+      "unsupported_claim_rate": "N/A",
+      "context_reduction_pct": 0.0,
+      "summary": "High retrieval relevance via RRF, but lacks automated reuse classification."
+    },
+    "B3": {
+      "name": "Retrieval + Basic Syntactic Reuse",
+      "type": "BASELINE",
+      "retrieval_ndcg5": 0.7883,
+      "decision_accuracy_pct": 50.0,
+      "security_violations": 1,
+      "unsupported_claim_rate": "N/A",
+      "context_reduction_pct": 0.0,
+      "summary": "Naive surface similarity fails on complexity/adaptation and introduces security vulnerabilities."
+    },
+    "P": {
+      "name": "Proposed Complete System",
+      "type": "PROPOSED",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 100.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "summary": "Authoritative deterministic pipeline with multi-criteria reuse, security gating, and grounded AI."
+    },
+    "A1": {
+      "name": "P without Semantic Retrieval (Lexical Only)",
+      "type": "ABLATION",
+      "ablated_component": "Semantic vector embeddings",
+      "retrieval_ndcg5": 0.6675,
+      "decision_accuracy_pct": 75.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "impact": "nDCG@5 drops by 24.45 percentage points; fails to retrieve relevant candidates with synonym queries."
+    },
+    "A2": {
+      "name": "P without Reuse Scoring Engine",
+      "type": "ABLATION",
+      "ablated_component": "8-dimensional multi-criteria reuse evaluation",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 37.5,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.25,
+      "context_reduction_pct": 95.62,
+      "impact": "Decision accuracy drops by 62.5 percentage points; cannot reliably determine refactoring feasibility."
+    },
+    "A3": {
+      "name": "P without Security Blocker Gating",
+      "type": "ABLATION",
+      "ablated_component": "Hard security gate (HIGH/CRITICAL -> BLOCKED)",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 87.5,
+      "security_violations": 1,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "impact": "CRITICAL SAFETY REGRESSION: 1 vulnerable component recommended for direct reuse, introducing vulnerabilities."
+    },
+    "A4": {
+      "name": "P without Architecture Intelligence",
+      "type": "ABLATION",
+      "ablated_component": "Dependency cycles and Martin coupling metrics",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 87.5,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "impact": "Fails to detect package cyclic dependency risks during reuse extension decisions."
+    },
+    "A5": {
+      "name": "P without Grounded Evidence Selection (Raw Context Dump)",
+      "type": "ABLATION",
+      "ablated_component": "Targeted evidence chunk extraction",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 100.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.6667,
+      "context_reduction_pct": 0.0,
+      "impact": "Consumes 23x more prompt tokens; unsupported claim rate surges to 66.7% due to lack of chunk attribution."
+    }
+  },
+  "records": [
+    {
+      "name": "Zero Context",
+      "type": "BASELINE",
+      "retrieval_ndcg5": "N/A",
+      "decision_accuracy_pct": 25.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 1.0,
+      "context_reduction_pct": 100.0,
+      "summary": "Cannot assist with codebase reuse; defaults to greenfield creation for everything.",
+      "configuration_id": "B0",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "B0",
+        "system_configuration": "EVAL_CONFIG_B0",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.679047+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "Lexical Retrieval Only",
+      "type": "BASELINE",
+      "retrieval_ndcg5": 0.6675,
+      "decision_accuracy_pct": "N/A",
+      "security_violations": "N/A",
+      "unsupported_claim_rate": "N/A",
+      "context_reduction_pct": 0.0,
+      "summary": "Suffers from vocabulary mismatch on paraphrased developer queries.",
+      "configuration_id": "B1",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "B1",
+        "system_configuration": "EVAL_CONFIG_B1",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.725648+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "Hybrid Retrieval (No Reuse/Security)",
+      "type": "BASELINE",
+      "retrieval_ndcg5": 0.7883,
+      "decision_accuracy_pct": "N/A",
+      "security_violations": "N/A",
+      "unsupported_claim_rate": "N/A",
+      "context_reduction_pct": 0.0,
+      "summary": "High retrieval relevance via RRF, but lacks automated reuse classification.",
+      "configuration_id": "B2",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "B2",
+        "system_configuration": "EVAL_CONFIG_B2",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.777431+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "Retrieval + Basic Syntactic Reuse",
+      "type": "BASELINE",
+      "retrieval_ndcg5": 0.7883,
+      "decision_accuracy_pct": 50.0,
+      "security_violations": 1,
+      "unsupported_claim_rate": "N/A",
+      "context_reduction_pct": 0.0,
+      "summary": "Naive surface similarity fails on complexity/adaptation and introduces security vulnerabilities.",
+      "configuration_id": "B3",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "B3",
+        "system_configuration": "EVAL_CONFIG_B3",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.826078+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "Proposed Complete System",
+      "type": "PROPOSED",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 100.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "summary": "Authoritative deterministic pipeline with multi-criteria reuse, security gating, and grounded AI.",
+      "configuration_id": "P",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "P",
+        "system_configuration": "EVAL_CONFIG_P",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.875696+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "P without Semantic Retrieval (Lexical Only)",
+      "type": "ABLATION",
+      "ablated_component": "Semantic vector embeddings",
+      "retrieval_ndcg5": 0.6675,
+      "decision_accuracy_pct": 75.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "impact": "nDCG@5 drops by 24.45 percentage points; fails to retrieve relevant candidates with synonym queries.",
+      "configuration_id": "A1",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "A1",
+        "system_configuration": "EVAL_CONFIG_A1",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.927900+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "P without Reuse Scoring Engine",
+      "type": "ABLATION",
+      "ablated_component": "8-dimensional multi-criteria reuse evaluation",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 37.5,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.25,
+      "context_reduction_pct": 95.62,
+      "impact": "Decision accuracy drops by 62.5 percentage points; cannot reliably determine refactoring feasibility.",
+      "configuration_id": "A2",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "A2",
+        "system_configuration": "EVAL_CONFIG_A2",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.987830+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "P without Security Blocker Gating",
+      "type": "ABLATION",
+      "ablated_component": "Hard security gate (HIGH/CRITICAL -> BLOCKED)",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 87.5,
+      "security_violations": 1,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "impact": "CRITICAL SAFETY REGRESSION: 1 vulnerable component recommended for direct reuse, introducing vulnerabilities.",
+      "configuration_id": "A3",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "A3",
+        "system_configuration": "EVAL_CONFIG_A3",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:56.040585+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "P without Architecture Intelligence",
+      "type": "ABLATION",
+      "ablated_component": "Dependency cycles and Martin coupling metrics",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 87.5,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.1429,
+      "context_reduction_pct": 95.62,
+      "impact": "Fails to detect package cyclic dependency risks during reuse extension decisions.",
+      "configuration_id": "A4",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "A4",
+        "system_configuration": "EVAL_CONFIG_A4",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:56.088199+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "name": "P without Grounded Evidence Selection (Raw Context Dump)",
+      "type": "ABLATION",
+      "ablated_component": "Targeted evidence chunk extraction",
+      "retrieval_ndcg5": 0.912,
+      "decision_accuracy_pct": 100.0,
+      "security_violations": 0,
+      "unsupported_claim_rate": 0.6667,
+      "context_reduction_pct": 0.0,
+      "impact": "Consumes 23x more prompt tokens; unsupported claim rate surges to 66.7% due to lack of chunk attribution.",
+      "configuration_id": "A5",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "A5",
+        "system_configuration": "EVAL_CONFIG_A5",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:56.138391+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    }
+  ]
+}

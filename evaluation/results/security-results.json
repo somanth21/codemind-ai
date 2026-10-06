@@ -1,0 +1,363 @@
+{
+  "provenance": {
+    "dataset_version": "1.0.0",
+    "case_id": "ALL_SECURITY_RULES",
+    "system_configuration": "P_PROPOSED",
+    "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+    "timestamp": "2026-10-06T16:53:53.844757+00:00",
+    "metric_definition_version": "1.0.0"
+  },
+  "per_rule_metrics": {
+    "SEC-SECRET-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-CMD-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-SQL-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-PATH-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-CRYPTO-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-DESER-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-AUTH-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "SEC-LOG-001": {
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    }
+  },
+  "aggregate_micro": {
+    "true_positives": 8,
+    "false_positives": 0,
+    "true_negatives": 8,
+    "false_negatives": 0,
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.0
+  },
+  "aggregate_macro_f1": 1.0,
+  "cases": [
+    {
+      "case_id": "SEC-CASE-001",
+      "rule_id": "SEC-SECRET-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-001",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.143936+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-002",
+      "rule_id": "SEC-SECRET-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-002",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.188625+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-003",
+      "rule_id": "SEC-CMD-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-003",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.230596+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-004",
+      "rule_id": "SEC-CMD-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-004",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.272120+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-005",
+      "rule_id": "SEC-PATH-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-005",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.315640+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-006",
+      "rule_id": "SEC-PATH-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-006",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.359292+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-007",
+      "rule_id": "SEC-CRYPTO-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-007",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.401757+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-008",
+      "rule_id": "SEC-CRYPTO-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-008",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.446305+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-009",
+      "rule_id": "SEC-SQL-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-009",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.490536+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-010",
+      "rule_id": "SEC-SQL-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-010",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.532520+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-011",
+      "rule_id": "SEC-DESER-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-011",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.575590+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-012",
+      "rule_id": "SEC-DESER-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-012",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.623253+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-013",
+      "rule_id": "SEC-AUTH-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-013",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.666359+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-014",
+      "rule_id": "SEC-AUTH-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-014",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.711952+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-015",
+      "rule_id": "SEC-LOG-001",
+      "expected_detection": true,
+      "actual_detection": true,
+      "verdict": "TRUE_POSITIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-015",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.758058+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "SEC-CASE-016",
+      "rule_id": "SEC-LOG-001",
+      "expected_detection": false,
+      "actual_detection": false,
+      "verdict": "TRUE_NEGATIVE",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "SEC-CASE-016",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:53.801749+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    }
+  ]
+}

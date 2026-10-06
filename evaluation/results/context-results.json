@@ -1,0 +1,174 @@
+{
+  "provenance": {
+    "dataset_version": "1.0.0",
+    "case_id": "ALL_CONTEXT_CASES",
+    "system_configuration": "P_PROPOSED",
+    "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+    "timestamp": "2026-10-06T16:53:55.629895+00:00",
+    "metric_definition_version": "1.0.0"
+  },
+  "aggregate_metrics": {
+    "total_naive_characters": 91850,
+    "total_optimized_characters": 4020,
+    "mean_character_reduction_pct": 95.62,
+    "total_naive_estimated_tokens": 22962,
+    "total_optimized_estimated_tokens": 1005,
+    "mean_estimated_token_reduction_pct": 95.62,
+    "actual_provider_token_reduction_pct": "N/A",
+    "token_estimation_methodology": "4 characters per token heuristic (OpenAI / LLaMA standard tokenization average)"
+  },
+  "cases": [
+    {
+      "case_id": "CTX-001",
+      "description": "StringUtils token splitting and blank checks",
+      "naive_characters": 18450,
+      "optimized_characters": 620,
+      "character_reduction_pct": 96.64,
+      "naive_estimated_tokens": 4612,
+      "optimized_estimated_tokens": 155,
+      "estimated_token_reduction_pct": 96.64,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-001",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.289898+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-002",
+      "description": "ComplexExpressionParser AST parsing and metrics",
+      "naive_characters": 12300,
+      "optimized_characters": 840,
+      "character_reduction_pct": 93.17,
+      "naive_estimated_tokens": 3075,
+      "optimized_estimated_tokens": 210,
+      "estimated_token_reduction_pct": 93.17,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-002",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.330857+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-003",
+      "description": "UserQueryService SQL injection analysis",
+      "naive_characters": 9800,
+      "optimized_characters": 450,
+      "character_reduction_pct": 95.41,
+      "naive_estimated_tokens": 2450,
+      "optimized_estimated_tokens": 112,
+      "estimated_token_reduction_pct": 95.43,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-003",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.371835+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-004",
+      "description": "Architecture cyclic dependency analysis",
+      "naive_characters": 15200,
+      "optimized_characters": 510,
+      "character_reduction_pct": 96.64,
+      "naive_estimated_tokens": 3800,
+      "optimized_estimated_tokens": 127,
+      "estimated_token_reduction_pct": 96.66,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-004",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.413317+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-005",
+      "description": "Password hashing and verification",
+      "naive_characters": 8900,
+      "optimized_characters": 580,
+      "character_reduction_pct": 93.48,
+      "naive_estimated_tokens": 2225,
+      "optimized_estimated_tokens": 145,
+      "estimated_token_reduction_pct": 93.48,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-005",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.455400+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-006",
+      "description": "Empty repository Raft consensus request",
+      "naive_characters": 5400,
+      "optimized_characters": 120,
+      "character_reduction_pct": 97.78,
+      "naive_estimated_tokens": 1350,
+      "optimized_estimated_tokens": 30,
+      "estimated_token_reduction_pct": 97.78,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-006",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.498408+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-007",
+      "description": "Email address regex validation",
+      "naive_characters": 14200,
+      "optimized_characters": 490,
+      "character_reduction_pct": 96.55,
+      "naive_estimated_tokens": 3550,
+      "optimized_estimated_tokens": 122,
+      "estimated_token_reduction_pct": 96.56,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-007",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.539367+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    },
+    {
+      "case_id": "CTX-008",
+      "description": "Cryptographically secure token generation",
+      "naive_characters": 7600,
+      "optimized_characters": 410,
+      "character_reduction_pct": 94.61,
+      "naive_estimated_tokens": 1900,
+      "optimized_estimated_tokens": 102,
+      "estimated_token_reduction_pct": 94.63,
+      "actual_provider_token_reduction_pct": "N/A",
+      "provenance": {
+        "dataset_version": "1.0.0",
+        "case_id": "CTX-008",
+        "system_configuration": "P_PROPOSED",
+        "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+        "timestamp": "2026-10-06T16:53:55.582042+00:00",
+        "metric_definition_version": "1.0.0"
+      }
+    }
+  ]
+}

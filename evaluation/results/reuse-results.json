@@ -1,0 +1,554 @@
+{
+  "B0_ZERO_CONTEXT": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_REUSE_CASES",
+      "system_configuration": "B0_ZERO_CONTEXT",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:52.296662+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "metrics": {
+      "total_cases": 8,
+      "strict_accuracy": 0.25,
+      "relaxed_accuracy": 0.375,
+      "security_violations": 0,
+      "safety_compliance_rate": 1.0
+    },
+    "confusion_matrix": {
+      "REUSE_DIRECTLY": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 2
+      },
+      "REUSE_WITH_ADAPTATION": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 2
+      },
+      "COMPOSE_EXISTING_COMPONENTS": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 1
+      },
+      "EXTEND_EXISTING_COMPONENT": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 1
+      },
+      "CREATE_NEW": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 2
+      }
+    },
+    "cases": [
+      {
+        "case_id": "REUSE-001",
+        "expected": "REUSE_DIRECTLY",
+        "predicted": "CREATE_NEW",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-001",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:51.947306+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-002",
+        "expected": "REUSE_WITH_ADAPTATION",
+        "predicted": "CREATE_NEW",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-002",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:51.993519+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-003",
+        "expected": "COMPOSE_EXISTING_COMPONENTS",
+        "predicted": "CREATE_NEW",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-003",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.037604+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-004",
+        "expected": "EXTEND_EXISTING_COMPONENT",
+        "predicted": "CREATE_NEW",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-004",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.083138+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-005",
+        "expected": "CREATE_NEW",
+        "predicted": "CREATE_NEW",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-005",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.126175+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-006",
+        "expected": "CREATE_NEW",
+        "predicted": "CREATE_NEW",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-006",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.169564+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-007",
+        "expected": "REUSE_DIRECTLY",
+        "predicted": "CREATE_NEW",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-007",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.212573+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-008",
+        "expected": "REUSE_WITH_ADAPTATION",
+        "predicted": "CREATE_NEW",
+        "strict_match": false,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-008",
+          "system_configuration": "B0_ZERO_CONTEXT",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.254591+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "B3_BASIC_SYNTACTIC": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_REUSE_CASES",
+      "system_configuration": "B3_BASIC_SYNTACTIC",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:52.695310+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "metrics": {
+      "total_cases": 8,
+      "strict_accuracy": 0.5,
+      "relaxed_accuracy": 0.5,
+      "security_violations": 1,
+      "safety_compliance_rate": 0.875
+    },
+    "confusion_matrix": {
+      "REUSE_DIRECTLY": {
+        "REUSE_DIRECTLY": 2,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "REUSE_WITH_ADAPTATION": {
+        "REUSE_DIRECTLY": 2,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "COMPOSE_EXISTING_COMPONENTS": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 1,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "EXTEND_EXISTING_COMPONENT": {
+        "REUSE_DIRECTLY": 1,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "CREATE_NEW": {
+        "REUSE_DIRECTLY": 1,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 1
+      }
+    },
+    "cases": [
+      {
+        "case_id": "REUSE-001",
+        "expected": "REUSE_DIRECTLY",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-001",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.338643+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-002",
+        "expected": "REUSE_WITH_ADAPTATION",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-002",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.381651+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-003",
+        "expected": "COMPOSE_EXISTING_COMPONENTS",
+        "predicted": "COMPOSE_EXISTING_COMPONENTS",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-003",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.426728+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-004",
+        "expected": "EXTEND_EXISTING_COMPONENT",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-004",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.469329+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-005",
+        "expected": "CREATE_NEW",
+        "predicted": "CREATE_NEW",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-005",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.512339+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-006",
+        "expected": "CREATE_NEW",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": true,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-006",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.556519+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-007",
+        "expected": "REUSE_DIRECTLY",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-007",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.600563+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-008",
+        "expected": "REUSE_WITH_ADAPTATION",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": false,
+        "relaxed_match": false,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-008",
+          "system_configuration": "B3_BASIC_SYNTACTIC",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.647666+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "P_PROPOSED": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_REUSE_CASES",
+      "system_configuration": "P_PROPOSED",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:53.098352+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "metrics": {
+      "total_cases": 8,
+      "strict_accuracy": 1.0,
+      "relaxed_accuracy": 1.0,
+      "security_violations": 0,
+      "safety_compliance_rate": 1.0
+    },
+    "confusion_matrix": {
+      "REUSE_DIRECTLY": {
+        "REUSE_DIRECTLY": 2,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "REUSE_WITH_ADAPTATION": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 2,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "COMPOSE_EXISTING_COMPONENTS": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 1,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 0
+      },
+      "EXTEND_EXISTING_COMPONENT": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 1,
+        "CREATE_NEW": 0
+      },
+      "CREATE_NEW": {
+        "REUSE_DIRECTLY": 0,
+        "REUSE_WITH_ADAPTATION": 0,
+        "COMPOSE_EXISTING_COMPONENTS": 0,
+        "EXTEND_EXISTING_COMPONENT": 0,
+        "CREATE_NEW": 2
+      }
+    },
+    "cases": [
+      {
+        "case_id": "REUSE-001",
+        "expected": "REUSE_DIRECTLY",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-001",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.740527+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-002",
+        "expected": "REUSE_WITH_ADAPTATION",
+        "predicted": "REUSE_WITH_ADAPTATION",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-002",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.787670+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-003",
+        "expected": "COMPOSE_EXISTING_COMPONENTS",
+        "predicted": "COMPOSE_EXISTING_COMPONENTS",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-003",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.834262+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-004",
+        "expected": "EXTEND_EXISTING_COMPONENT",
+        "predicted": "EXTEND_EXISTING_COMPONENT",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-004",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.877801+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-005",
+        "expected": "CREATE_NEW",
+        "predicted": "CREATE_NEW",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-005",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.923449+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-006",
+        "expected": "CREATE_NEW",
+        "predicted": "CREATE_NEW",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-006",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:52.968018+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-007",
+        "expected": "REUSE_DIRECTLY",
+        "predicted": "REUSE_DIRECTLY",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-007",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:53.011132+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "REUSE-008",
+        "expected": "REUSE_WITH_ADAPTATION",
+        "predicted": "REUSE_WITH_ADAPTATION",
+        "strict_match": true,
+        "relaxed_match": true,
+        "security_gate_violated": false,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "REUSE-008",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:53.054323+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      }
+    ]
+  }
+}

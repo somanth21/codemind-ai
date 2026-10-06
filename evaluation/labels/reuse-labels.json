@@ -1,0 +1,87 @@
+{
+  "dataset_version": "1.0.0",
+  "generated_at": "2026-10-06T22:09:00Z",
+  "description": "Ground-truth labeled reuse benchmark cases created independently from system outputs.",
+  "cases": [
+    {
+      "case_id": "REUSE-001",
+      "repository": "COMMONS-LANG-SUBSET",
+      "user_request": "I need a helper function to compute the greatest common divisor of two integers.",
+      "expected_reusable_components": ["MathUtils::gcd"],
+      "expected_decision": "REUSE_DIRECTLY",
+      "acceptable_alternative_decisions": ["REUSE_WITH_ADAPTATION"],
+      "reason": "MathUtils.gcd already provides exact Euclidean algorithm with zero defects, low complexity, and passing gates.",
+      "security_blocked": false
+    },
+    {
+      "case_id": "REUSE-002",
+      "repository": "COMMONS-LANG-SUBSET",
+      "user_request": "I need to check if a string is empty, but also treat strings containing only punctuation as blank.",
+      "expected_reusable_components": ["StringUtils::isBlank"],
+      "expected_decision": "REUSE_WITH_ADAPTATION",
+      "acceptable_alternative_decisions": ["EXTEND_EXISTING_COMPONENT"],
+      "reason": "StringUtils.isBlank checks whitespace; adapting it to add punctuation character checks requires small modification effort while reusing existing whitespace checks.",
+      "security_blocked": false
+    },
+    {
+      "case_id": "REUSE-003",
+      "repository": "SPRING-PETCLINIC",
+      "user_request": "I need to register a new visit for a pet and send an email notification to the pet owner.",
+      "expected_reusable_components": ["VisitRepository::save", "OwnerRepository::findById"],
+      "expected_decision": "COMPOSE_EXISTING_COMPONENTS",
+      "acceptable_alternative_decisions": ["REUSE_WITH_ADAPTATION"],
+      "reason": "Requires orchestrating existing Visit persistence and Owner retrieval components together with new notification logic.",
+      "security_blocked": false
+    },
+    {
+      "case_id": "REUSE-004",
+      "repository": "SPRING-PETCLINIC",
+      "user_request": "I need an emergency veterinary visit record with triage urgency priority levels.",
+      "expected_reusable_components": ["Visit"],
+      "expected_decision": "EXTEND_EXISTING_COMPONENT",
+      "acceptable_alternative_decisions": ["REUSE_WITH_ADAPTATION"],
+      "reason": "Existing Visit entity has date, description, and pet mapping; subclassing or extending with triage priority is cleaner than creating a disconnected entity.",
+      "security_blocked": false
+    },
+    {
+      "case_id": "REUSE-005",
+      "repository": "SPRING-PETCLINIC",
+      "user_request": "I need a GraphQL subscription gateway for streaming live real-time surgery heart rate sensor telemetry.",
+      "expected_reusable_components": [],
+      "expected_decision": "CREATE_NEW",
+      "acceptable_alternative_decisions": [],
+      "reason": "PetClinic is a traditional REST/MVC application with zero GraphQL, reactive WebSocket, or medical sensor streaming abstractions.",
+      "security_blocked": false
+    },
+    {
+      "case_id": "REUSE-006",
+      "repository": "SYNTHETIC-MICRO-01",
+      "user_request": "I need a utility to execute command line scripts to check system disk space.",
+      "expected_reusable_components": ["SecurityPositiveFixtures::runCommand"],
+      "expected_decision": "CREATE_NEW",
+      "acceptable_alternative_decisions": [],
+      "reason": "Existing candidate SecurityPositiveFixtures::runCommand contains a CRITICAL command execution vulnerability. Security blocker gate must force BLOCKED status, preventing reuse.",
+      "security_blocked": true
+    },
+    {
+      "case_id": "REUSE-007",
+      "repository": "COMMONS-LANG-SUBSET",
+      "user_request": "I need to truncate a display label if it exceeds 30 characters.",
+      "expected_reusable_components": ["StringUtils::truncate"],
+      "expected_decision": "REUSE_DIRECTLY",
+      "acceptable_alternative_decisions": [],
+      "reason": "StringUtils.truncate implements exact boundary checks and string clipping without modification.",
+      "security_blocked": false
+    },
+    {
+      "case_id": "REUSE-008",
+      "repository": "SYNTHETIC-MICRO-01",
+      "user_request": "I need a multi-level conditional parser to decode legacy nested configuration flags.",
+      "expected_reusable_components": ["ComplexLegacyParser::parseComplex"],
+      "expected_decision": "REUSE_WITH_ADAPTATION",
+      "acceptable_alternative_decisions": ["CREATE_NEW"],
+      "reason": "ComplexLegacyParser has high cyclomatic complexity (CC > 15) triggering a complexity penalty, but contains the necessary conditional dispatch.",
+      "security_blocked": false
+    }
+  ]
+}

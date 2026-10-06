@@ -1,0 +1,28 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# CodeMind AI Maven Wrapper for Unix / macOS
+# ----------------------------------------------------------------------------
+PRG="$0"
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`"/$link"
+  fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`" >/dev/null
+APPDIR="`pwd`"
+cd "$SAVED" >/dev/null
+
+MAVEN_CMD="$APPDIR/.mvn/apache-maven-3.9.9/bin/mvn"
+
+if [ ! -f "$MAVEN_CMD" ]; then
+    echo "Error: Maven binary not found at $MAVEN_CMD" >&2
+    exit 1
+fi
+
+chmod +x "$MAVEN_CMD" 2>/dev/null
+exec "$MAVEN_CMD" "$@"

@@ -1,0 +1,64 @@
+graph TD
+    subgraph ClientTier ["Client Presentation Tier (Browser)"]
+        User(["Developer / Security Auditor"])
+        Frontend["React 18 + Vite + TypeScript SPA<br/>(Tailwind CSS, Lucide Icons, Router v6)"]
+        User -->|"HTTPS / JWT Bearer"| Frontend
+    end
+
+    subgraph BackendTier ["Spring Boot 3.3 Modular Monolith (Java 17)"]
+        Gateway["Spring Security 6 Gateway<br/>(Stateless JWT, CORS Filter, MDC Logging)"]
+        Frontend -->|"REST API Requests"| Gateway
+
+        subgraph CoreModules ["Core Domain & Analysis Engines"]
+            Auth["Security & RBAC<br/>(BCrypt, Role-Based Access)"]
+            Ingestion["Secure Ingestion Service<br/>(PathTraversalGuard, Zip Bomb Limits)"]
+            StaticAnalysis["Deterministic Static Analysis<br/>(JavaParser AST, Metrics, Secret Scanner)"]
+            SearchIndex["Hybrid Retrieval & Evidence Index<br/>(Lexical + Dense Vector, RRF Fusion)"]
+            ReuseEngine["Deterministic Reuse-First Engine<br/>(Multi-Criteria Scoring, Policy, Security Gate)"]
+            SecEngine["Deterministic Security Analysis<br/>(8 AST Rules, CWE Mappings, Redaction)"]
+            ArchEngine["Architecture Intelligence<br/>(Coupling Ca/Ce/I, DFS Cycle Detection, Hotspots)"]
+            GroundedAI["Grounded AI Reasoning Tier<br/>(Evidence Selection, Prompt Sanitization, Citations)"]
+        end
+
+        Gateway --> Auth
+        Gateway --> Ingestion
+        Gateway --> StaticAnalysis
+        Gateway --> SearchIndex
+        Gateway --> ReuseEngine
+        Gateway --> SecEngine
+        Gateway --> ArchEngine
+        Gateway --> GroundedAI
+    end
+
+    subgraph StorageTier ["Persistence & Sandbox Storage Tier"]
+        Postgres[("PostgreSQL 16 + pgvector<br/>(Relational Entities, Chunks, Embeddings, Audit Logs)")]
+        Sandbox[("Isolated Filesystem Sandbox<br/>(Read-Only Extracted Source Code)")]
+        
+        Ingestion -->|"Atomic Extraction (No Execution)"| Sandbox
+        StaticAnalysis -->|"Read-Only AST Traversal"| Sandbox
+        SecEngine -->|"Read-Only Security Scanning"| Sandbox
+        
+        Auth --> Postgres
+        StaticAnalysis --> Postgres
+        SearchIndex --> Postgres
+        ReuseEngine --> Postgres
+        SecEngine --> Postgres
+        ArchEngine --> Postgres
+        GroundedAI --> Postgres
+    end
+
+    subgraph ExternalAITier ["External AI Provider Tier"]
+        LLMProvider["Google Gemini API / Provider SPI<br/>(Structured JSON Output, Low Temperature)"]
+        GroundedAI -->|"Sanitized Delimited Evidence Only"| LLMProvider
+        LLMProvider -->|"Probabilistic Response (Validated)"| GroundedAI
+    end
+
+    %% Invariant Notes
+    classDef untrusted fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#991b1b;
+    classDef trusted fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#166534;
+    classDef external fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef aiNote fill:#fefce8,stroke:#eab308,stroke-width:2px,color:#854d0e;
+
+    class Sandbox untrusted;
+    class CoreModules trusted;
+    class LLMProvider external;

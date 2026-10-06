@@ -1,0 +1,230 @@
+{
+  "dataset_version": "1.0.0",
+  "generated_at": "2026-10-06T22:12:00Z",
+  "description": "Ground-truth labeled Grounded AI reasoning benchmark covering citation precision, citation recall, faithful reasoning, unsupported claim detection, and security gate invariant enforcement.",
+  "cases": [
+    {
+      "case_id": "GR-CASE-001",
+      "task_description": "Validate and split comma-separated tokens using existing string utilities",
+      "is_security_blocked": false,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-001-STR-SPLIT",
+          "file_path": "fixtures/ReuseFixtures.java",
+          "symbol_name": "StringUtils.splitTokens",
+          "snippet": "public static List<String> splitTokens(String input, String delimiter)",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.95
+        },
+        {
+          "evidence_id": "EV-002-STR-EMPTY",
+          "file_path": "fixtures/ReuseFixtures.java",
+          "symbol_name": "StringUtils.isEmpty",
+          "snippet": "public static boolean isEmpty(String str)",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.88
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-001-STR-SPLIT", "EV-002-STR-EMPTY"],
+      "expected_decision": "REUSE_DIRECTLY",
+      "reasoning_steps": [
+        {
+          "claim": "StringUtils.splitTokens directly provides delimiter-based token splitting with whitespace trimming.",
+          "evidence_ids": ["EV-001-STR-SPLIT"]
+        },
+        {
+          "claim": "StringUtils.isEmpty can be reused to validate blank or empty strings prior to tokenization.",
+          "evidence_ids": ["EV-002-STR-EMPTY"]
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-002",
+      "task_description": "Parse nested arithmetic expression tokens into an abstract syntax tree",
+      "is_security_blocked": false,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-003-EXPR-PARSE",
+          "file_path": "fixtures/ReuseFixtures.java",
+          "symbol_name": "ComplexExpressionParser.parseNestedExpression",
+          "snippet": "public static Object parseNestedExpression(String expression, int depth)",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.82
+        },
+        {
+          "evidence_id": "EV-004-EXPR-METRICS",
+          "file_path": "fixtures/ReuseFixtures.java",
+          "symbol_name": "ComplexExpressionParser",
+          "snippet": "CyclomaticComplexity: 18, CognitiveComplexity: 22, MaintainabilityIndex: 42.1",
+          "evidence_type": "METRIC_REPORT",
+          "deterministic_score": 0.75
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-003-EXPR-PARSE", "EV-004-EXPR-METRICS"],
+      "expected_decision": "REUSE_WITH_ADAPTATION",
+      "reasoning_steps": [
+        {
+          "claim": "ComplexExpressionParser.parseNestedExpression handles expression parsing but exhibits cyclomatic complexity 18 exceeding the maintainability threshold.",
+          "evidence_ids": ["EV-003-EXPR-PARSE", "EV-004-EXPR-METRICS"]
+        },
+        {
+          "claim": "Adaptation and refactoring into sub-parsers is necessary before integration to maintain code health.",
+          "evidence_ids": ["EV-004-EXPR-METRICS"]
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-003",
+      "task_description": "Search user accounts by dynamic search filter and role",
+      "is_security_blocked": true,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-005-SEC-SQLI",
+          "file_path": "fixtures/SecurityPositiveFixtures.java",
+          "symbol_name": "UserQueryService.findUsersByQuery",
+          "snippet": "statement.executeQuery(\"SELECT * FROM users WHERE \" + filter)",
+          "evidence_type": "SECURITY_FINDING",
+          "deterministic_score": 0.98
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-005-SEC-SQLI"],
+      "expected_decision": "BLOCKED",
+      "reasoning_steps": [
+        {
+          "claim": "Deterministic security analysis detected CRITICAL rule SEC-SQL-001 (SQL Injection) in UserQueryService.",
+          "evidence_ids": ["EV-005-SEC-SQLI"]
+        },
+        {
+          "claim": "Direct reuse is strictly blocked due to CRITICAL security severity. Must create new query implementation with parameterized queries.",
+          "evidence_ids": ["EV-005-SEC-SQLI"]
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-004",
+      "task_description": "Incorporate billing calculations into customer account processing",
+      "is_security_blocked": false,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-006-ARCH-CYCLE",
+          "file_path": "fixtures/ArchitectureFixtures.java",
+          "symbol_name": "Cycle: pkg_a <-> pkg_b",
+          "snippet": "Strongly connected cyclic dependency detected between com.codemind.pkg_a and com.codemind.pkg_b",
+          "evidence_type": "ARCHITECTURE_EVIDENCE",
+          "deterministic_score": 0.90
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-006-ARCH-CYCLE"],
+      "expected_decision": "EXTEND_EXISTING_COMPONENT",
+      "reasoning_steps": [
+        {
+          "claim": "Architecture analysis identified a bidirectional package cycle between pkg_a and pkg_b.",
+          "evidence_ids": ["EV-006-ARCH-CYCLE"]
+        },
+        {
+          "claim": "New billing extension must depend on common abstraction interface rather than deepening the cyclic coupling.",
+          "evidence_ids": ["EV-006-ARCH-CYCLE"]
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-005",
+      "task_description": "Hash and verify user passwords securely",
+      "is_security_blocked": false,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-007-SEC-BCRYPT",
+          "file_path": "fixtures/SecurityNegativeFixtures.java",
+          "symbol_name": "CryptoService.hashPassword",
+          "snippet": "BCryptPasswordEncoder.encode(rawPassword)",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.91
+        },
+        {
+          "evidence_id": "EV-008-SEC-VERIFY",
+          "file_path": "fixtures/SecurityNegativeFixtures.java",
+          "symbol_name": "CryptoService.verifyPassword",
+          "snippet": "BCryptPasswordEncoder.matches(rawPassword, hash)",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.89
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-007-SEC-BCRYPT", "EV-008-SEC-VERIFY"],
+      "expected_decision": "REUSE_DIRECTLY",
+      "reasoning_steps": [
+        {
+          "claim": "CryptoService.hashPassword provides standard salted BCrypt password hashing without known security weaknesses.",
+          "evidence_ids": ["EV-007-SEC-BCRYPT"]
+        },
+        {
+          "claim": "CryptoService.verifyPassword provides constant-time BCrypt matching.",
+          "evidence_ids": ["EV-008-SEC-VERIFY"]
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-006",
+      "task_description": "Implement a distributed Raft consensus protocol from scratch",
+      "is_security_blocked": false,
+      "provided_evidence": [],
+      "ground_truth_relevant_ids": [],
+      "expected_decision": "CREATE_NEW",
+      "reasoning_steps": [
+        {
+          "claim": "No consensus or Raft protocol implementations exist in repository evidence.",
+          "evidence_ids": []
+        },
+        {
+          "claim": "Recommend greenfield development or external library integration as no reuse candidate is available.",
+          "evidence_ids": []
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-007",
+      "task_description": "Validate email address syntax with RFC 5322 compliance",
+      "is_security_blocked": false,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-009-EMAIL-VALID",
+          "file_path": "fixtures/ReuseFixtures.java",
+          "symbol_name": "ValidationUtils.isValidEmail",
+          "snippet": "Pattern.compile(\"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\\\.[A-Z]{2,6}$\", Pattern.CASE_INSENSITIVE)",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.85
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-009-EMAIL-VALID"],
+      "expected_decision": "REUSE_DIRECTLY",
+      "reasoning_steps": [
+        {
+          "claim": "ValidationUtils.isValidEmail provides compiled regex email validation.",
+          "evidence_ids": ["EV-009-EMAIL-VALID"]
+        }
+      ]
+    },
+    {
+      "case_id": "GR-CASE-008",
+      "task_description": "Generate cryptographically secure session IDs",
+      "is_security_blocked": false,
+      "provided_evidence": [
+        {
+          "evidence_id": "EV-010-TOKEN-GEN",
+          "file_path": "fixtures/SecurityNegativeFixtures.java",
+          "symbol_name": "TokenUtils.generateSecureToken",
+          "snippet": "SecureRandom rng = new SecureRandom(); rng.nextBytes(bytes);",
+          "evidence_type": "CODE_SNIPPET",
+          "deterministic_score": 0.94
+        }
+      ],
+      "ground_truth_relevant_ids": ["EV-010-TOKEN-GEN"],
+      "expected_decision": "REUSE_DIRECTLY",
+      "reasoning_steps": [
+        {
+          "claim": "TokenUtils.generateSecureToken uses SecureRandom to generate cryptographically strong tokens.",
+          "evidence_ids": ["EV-010-TOKEN-GEN"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "manifest_version": "1.0.0",
+  "generated_at": "2026-10-06T22:08:00Z",
+  "policy": "No third-party proprietary or restricted source code is stored in the Git repository. Only metadata, labels, and legally redistributable synthetic test fixtures are tracked.",
+  "datasets": [
+    {
+      "dataset_id": "SYNTHETIC-MICRO-01",
+      "name": "CodeMind Synthetic Validation Micro-Benchmarks",
+      "license": "Apache-2.0",
+      "version": "1.0.0",
+      "source_url": "internal://evaluation/datasets/fixtures",
+      "checksum_sha256": "c8a49df67b931e4054a8a25c345b821421f5cb98e3b4fae019280d07521ea892",
+      "purpose": "Deterministic unit fixtures with known ground truth for secret detection, command execution, path traversal, broken crypto, SQL injection, cyclic package dependencies, and duplicate algorithms.",
+      "file_count": 16,
+      "total_loc": 640,
+      "redistributable": true,
+      "acquisition_instructions": "Included directly in evaluation/datasets/fixtures/ under repository Apache-2.0 license."
+    },
+    {
+      "dataset_id": "SPRING-PETCLINIC",
+      "name": "Spring PetClinic Reference Application",
+      "license": "Apache-2.0",
+      "version": "3.3.0",
+      "commit": "8f8b50f612fa5f05dc24639e4e6ad9d2f2d93e2b",
+      "source_url": "https://github.com/spring-projects/spring-petclinic",
+      "checksum_sha256": "4b5d2780bb2909fca95e783a3861219ceb6495267439bf1e600c0a9645f78235",
+      "purpose": "Enterprise Spring Boot application with layered domain model (Controller, Service, Repository), Spring Data JPA, and web validation for retrieval and reuse evaluation.",
+      "file_count": 42,
+      "total_loc": 3840,
+      "redistributable": true,
+      "acquisition_instructions": "git clone --depth 1 --branch v3.3.0 https://github.com/spring-projects/spring-petclinic.git external/spring-petclinic"
+    },
+    {
+      "dataset_id": "COMMONS-LANG-SUBSET",
+      "name": "Apache Commons Lang 3 (Utility Subset)",
+      "license": "Apache-2.0",
+      "version": "3.14.0",
+      "commit": "31d5754020a59a72df9b9aa5d207d573e0b2401f",
+      "source_url": "https://github.com/apache/commons-lang",
+      "checksum_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "High-reuse utility algorithms (StringUtils, MathUtils, ArrayUtils, Validate) evaluated for functional similarity, candidate retrieval, and syntactic clone adaptation.",
+      "file_count": 28,
+      "total_loc": 8920,
+      "redistributable": true,
+      "acquisition_instructions": "git clone --depth 1 --branch rel/commons-lang-3.14.0 https://github.com/apache/commons-lang.git external/commons-lang"
+    },
+    {
+      "dataset_id": "OWASP-BENCHMARK-SUBSET",
+      "name": "OWASP Benchmark for Java (Curated Rule Subset)",
+      "license": "GPL-2.0-only",
+      "version": "1.2",
+      "commit": "74880029b3528b9aa1852df85aa9179d73d7063f",
+      "source_url": "https://github.com/OWASP-Benchmark/BenchmarkJava",
+      "checksum_sha256": "91a27e05c0d29621ad7e59b209d7d94cf81c817290518774fbe6130cb57a531b",
+      "purpose": "Standardized benchmark for testing static AST analysis rules against CWE-89 (SQL Injection), CWE-78 (Command Execution), CWE-22 (Path Traversal), CWE-327 (Broken Crypto), and CWE-502 (Deserialization). Contains paired True Positive and True Negative cases.",
+      "file_count": 32,
+      "total_loc": 2400,
+      "redistributable": false,
+      "acquisition_instructions": "git clone --depth 1 https://github.com/OWASP-Benchmark/BenchmarkJava.git external/owasp-benchmark. Do not commit external code into the CodeMind repository."
+    }
+  ]
+}

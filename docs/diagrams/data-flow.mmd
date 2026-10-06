@@ -1,0 +1,79 @@
+flowchart TD
+    %% Entry Point
+    ZIP["Untrusted Repository Archive (.zip)"] -->|"HTTP Multipart Upload"| UploadBoundary["Ingestion Gateway"]
+    
+    subgraph S1 ["1. Secure Ingestion & Sandbox Isolation (Deterministic)"]
+        UploadBoundary -->|"PathTraversalGuard Validation<br/>(No '../', No symlinks, No device files)"| PathCheck{"Path Valid?"}
+        PathCheck -- No --> AbortIngest["Reject & Log Audit Warning"]
+        PathCheck -- Yes --> StreamExtract["ZipExtractionService<br/>(Stream-checked: size, file count limits)"]
+        StreamExtract -->|"Extract to Sandbox (NO EXECUTION / NO COMPILATION)"| RepoSandbox[("Isolated Repository Sandbox<br/>UNTRUSTED DATA")]
+    end
+
+    subgraph S2 ["2. Deterministic AST Analysis & Extraction"]
+        RepoSandbox -->|"Scan Regular Files"| MetaScan["FileMetadataScanner<br/>(Language classification, NUL binary check, SHA-256)"]
+        MetaScan -->|"Java Source Files (.java)"| ASTParse["JavaParser Static Analysis<br/>(Read-Only AST Parsing)"]
+        
+        ASTParse --> SymExt["Extract Symbols<br/>(Classes, Interfaces, Methods, Records)"]
+        ASTParse --> RelExt["Extract Relationships<br/>(EXTENDS, IMPLEMENTS, CALLS, HAS_FIELD)"]
+        ASTParse --> MetExt["Calculate Static Metrics<br/>(LOC, Cyclomatic Complexity, Halstead, MI)"]
+        ASTParse --> QualExt["Static Quality Rules<br/>(High CC, Nesting Depth, Empty Catch)"]
+        ASTParse --> SecScan["Secret Scanner<br/>(Deterministic Masking & Redaction)"]
+        
+        SecScan -->|"Masked Credentials"| SecretRedacted["Redacted Secret Findings<br/>(Plaintext Never Stored)"]
+    end
+
+    subgraph S3 ["3. Hybrid Evidence Indexing & Retrieval"]
+        SymExt & MetExt & RelExt --> ChunkGen["Repository Chunk & Evidence Generation<br/>(Bounded window chunks with file/line provenance)"]
+        ChunkGen --> LexIndex["Lexical Inverted Index<br/>(Exact token & symbol name matching)"]
+        ChunkGen --> SemIndex["Semantic Vector Index<br/>(Dense embeddings in PostgreSQL pgvector)"]
+        
+        UserQuery["Developer Query / Intended Feature"] --> QueryRetriever["Hybrid Retrieval Service"]
+        LexIndex -->|"Lexical Candidates"| QueryRetriever
+        SemIndex -->|"Vector Candidates"| QueryRetriever
+        QueryRetriever -->|"Reciprocal Rank Fusion (RRF)"| HybridEv["Ranked Hybrid Evidence"]
+    end
+
+    subgraph S4 ["4. Deterministic Reuse-First Engine"]
+        HybridEv --> CandidateDisc["ReuseCandidateService<br/>(Discovers candidate symbols & caller context)"]
+        CandidateDisc --> MultiCritScore["ReuseScoringEngine<br/>(8 Deterministic Metrics: Functional, Structural, MI, CC, etc.)"]
+        
+        MultiCritScore --> SecGateCheck["ReuseSecurityGate<br/>(Check deterministic security findings)"]
+        SecGateCheck -->|"Has CRITICAL / HIGH Findings?"| GateDecision{"Security Gate"}
+        GateDecision -- Yes --> GateBlocked["BLOCKED Gate<br/>(Direct Reuse Forbidden)"]
+        GateDecision -- No --> GateSafe["SAFE / CAUTION Gate"]
+        
+        GateBlocked & GateSafe --> PolicyEngine["ReusePolicyEngine<br/>(REUSE_DIRECTLY, ADAPT, COMPOSE, EXTEND, CREATE_NEW)"]
+        PolicyEngine --> ReuseDecision["Deterministic Reuse Decision & Explanation"]
+    end
+
+    subgraph S5 ["5. Security & Architecture Intelligence (Deterministic)"]
+        ASTParse --> SecEngine["Deterministic Security Rule Engine<br/>(8 Rules: SQLi, CmdInj, PathTrav, Deser, WeakCrypto, etc.)"]
+        SecEngine --> SecFindings[("Security Findings DB<br/>(CWE Mappings & Provenance)")]
+        
+        ASTParse --> ArchEngine["Architecture Intelligence Engine<br/>(Package Coupling Ca/Ce/I, DFS Cycle Detection, Hotspots)"]
+        ArchEngine --> ArchMetrics[("Architecture Metrics DB<br/>(Coupling, Cycles, Hotspots, Smells)")]
+    end
+
+    subgraph S6 ["6. Grounded AI Reasoning Layer (Probabilistic Downstream)"]
+        ReuseDecision & SecFindings & ArchMetrics --> EvSelect["EvidenceSelectionService<br/>(Extract minimal relevant evidence chunks)"]
+        EvSelect --> PromptSanitize["Prompt Injection Defense & Redaction<br/>(Neutralize delimiters, mask residual secrets)"]
+        PromptSanitize --> ContextBudget["ContextBudgetManager<br/>(Hard cap: max 10 chunks, 16k chars, 4k tokens)"]
+        
+        ContextBudget --> SystemPrompt["Fixed Immutable System Prompt<br/>(Untrusted data boundary, instruction isolation)"]
+        SystemPrompt --> ExternalLLM["External LLM Provider<br/>(Google Gemini API)"]
+        
+        ExternalLLM -->|"Raw Output"| JSONParse["StructuredResponseParser<br/>(Markdown strip, JSON validation)"]
+        JSONParse --> GroundingVal["GroundingValidator<br/>(Verify citation IDs, calculate coverage, enforce security gates)"]
+        GroundingVal --> CitedOutput["Final Grounded Explanation<br/>(Cited [E1], [E2] with exact provenance)"]
+    end
+
+    %% Invariant Styling
+    classDef untrusted fill:#fef2f2,stroke:#ef4444,stroke-width:2px;
+    classDef deterministic fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
+    classDef llm fill:#faf5ff,stroke:#a855f7,stroke-width:2px;
+    classDef securityGate fill:#fff7ed,stroke:#f97316,stroke-width:2px;
+
+    class ZIP,RepoSandbox untrusted;
+    class S1,S2,S3,S5 deterministic;
+    class S4 securityGate;
+    class S6 llm;

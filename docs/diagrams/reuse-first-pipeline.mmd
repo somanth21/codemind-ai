@@ -1,0 +1,58 @@
+flowchart TD
+    UserReq["Developer Query / Functional Request"] --> SearchRetriever["Hybrid Retrieval (Lexical + Vector)"]
+    
+    SearchRetriever --> Candidates["Discovered Repository Candidates<br/>(Symbols, Methods, Classes, Interfaces)"]
+    
+    Candidates --> Filter["Candidate Filtering<br/>(Deduplication, Visibility, Minimum Match Threshold)"]
+    
+    subgraph MultiCriteria ["Deterministic Multi-Criteria Evaluation (8 Dimensions)"]
+        Filter --> C1["1. Functional Relevance (0.0 - 1.0)<br/>Query intent semantic & lexical similarity"]
+        Filter --> C2["2. Structural Similarity (0.0 - 1.0)<br/>Signature, parameters, return type match"]
+        Filter --> C3["3. Maintainability Score (0.0 - 1.0)<br/>Halstead & MI normalized score"]
+        Filter --> C4["4. Complexity Penalty (0.0 - 1.0)<br/>McCabe Cyclomatic Complexity penalty"]
+        Filter --> C5["5. Security Audit Score (0.0 - 1.0)<br/>Static quality findings & secret clean status"]
+        Filter --> C6["6. Modification Effort (0.0 - 1.0)<br/>Estimated diff & parameter adaptation required"]
+        Filter --> C7["7. Dependency Impact (0.0 - 1.0)<br/>Afferent/Efferent coupling increase risk"]
+        Filter --> C8["8. Duplication Risk (0.0 - 1.0)<br/>Risk of reimplementing existing capability"]
+    end
+
+    C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 --> ScoreAgg["Score Aggregation & Confidence Weighting<br/>Overall Score S &isin; [0, 1], Confidence C &isin; [0, 1]"]
+
+    ScoreAgg --> SecGate["ReuseSecurityGate Verification"]
+    
+    subgraph SecurityGateSub ["Security Gate Evaluation"]
+        SecGate --> CheckSec{"Static Security Findings?"}
+        CheckSec -- "CRITICAL or HIGH Findings Detected" --> GateBlocked["Gate: BLOCKED<br/>(Vulnerabilities present: SQLi, CmdInj, Secrets)"]
+        CheckSec -- "MEDIUM Findings Detected" --> GateCaution["Gate: CAUTION<br/>(Review required before reuse)"]
+        CheckSec -- "Zero Findings / Safe" --> GateSafe["Gate: SAFE<br/>(Clean static security profile)"]
+    end
+
+    GateBlocked & GateCaution & GateSafe --> PolicyEngine["ReusePolicyEngine Decision Matrix"]
+
+    subgraph Decisions ["Decision Outcomes"]
+        PolicyEngine --> BranchBlocked{"Is BLOCKED?"}
+        BranchBlocked -- "Yes (BLOCKED)" --> CreateOrAdapt["Force Strategy downgrade:<br/>• Cannot recommend REUSE_DIRECTLY<br/>• Prompts security remediation first"]
+        
+        BranchBlocked -- "No (SAFE or CAUTION)" --> BranchScore{"Score & Relevance Thresholds"}
+        
+        BranchScore -- "Score &ge; 0.85 & SAFE" --> D1["REUSE_DIRECTLY<br/>Component satisfies requirement as-is"]
+        BranchScore -- "Score &ge; 0.65" --> D2["REUSE_WITH_ADAPTATION<br/>Component fits with minor parameter/type adaptation"]
+        BranchScore -- "Multiple complementary symbols" --> D3["COMPOSE_EXISTING_COMPONENTS<br/>Pipeline or aggregate existing repository units"]
+        BranchScore -- "Partial match / extensible base" --> D4["EXTEND_EXISTING_COMPONENT<br/>Inherit or subclass existing base abstraction"]
+        BranchScore -- "Score &lt; 0.40 / No candidates" --> D5["CREATE_NEW<br/>Justified creation: No existing component fits"]
+    end
+
+    CreateOrAdapt --> D5
+    CreateOrAdapt --> D2
+
+    D1 & D2 & D3 & D4 & D5 --> ExplanationGen["ReuseExplanationGenerator<br/>(Positive signals, negative trade-offs, line provenance)"]
+    ExplanationGen --> FinalRec["Final Actionable Reuse Recommendation"]
+
+    %% Styles
+    classDef gateBlocked fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#991b1b;
+    classDef gateSafe fill:#dcfce7,stroke:#22c55e,stroke-width:2px,color:#166534;
+    classDef decision fill:#eff6ff,stroke:#3b82f6,stroke-width:2px;
+
+    class GateBlocked,CreateOrAdapt gateBlocked;
+    class GateSafe gateSafe;
+    class D1,D2,D3,D4,D5 decision;

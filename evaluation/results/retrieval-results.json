@@ -1,0 +1,585 @@
+{
+  "B0_ZERO_CONTEXT": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_QUERIES",
+      "system_configuration": "B0_ZERO_CONTEXT",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:51.717759+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "metrics": {
+      "precision_at_1": "N/A",
+      "precision_at_5": "N/A",
+      "precision_at_10": "N/A",
+      "recall_at_5": "N/A",
+      "recall_at_10": "N/A",
+      "mrr": "N/A",
+      "ndcg_at_5": "N/A"
+    }
+  },
+  "B1_LEXICAL": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_QUERIES",
+      "system_configuration": "B1_LEXICAL",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:51.762869+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "queries": [
+      {
+        "query_id": "RQ-001",
+        "retrieved_top_5": [
+          "Vet",
+          "getSpecialties",
+          "VetRepository",
+          "Pet",
+          "Owner"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.5,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.7171
+      },
+      {
+        "query_id": "RQ-002",
+        "retrieved_top_5": [
+          "Owner",
+          "OwnerRepository",
+          "OwnerController",
+          "processFindForm",
+          "findPaginatedForOwnersLastName"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 0.3333,
+        "ndcg_at_5": 0.5793
+      },
+      {
+        "query_id": "RQ-003",
+        "retrieved_top_5": [
+          "VisitRepository",
+          "Visit",
+          "save",
+          "findByPetId",
+          "PetRepository"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8488
+      },
+      {
+        "query_id": "RQ-004",
+        "retrieved_top_5": [
+          "StringUtils",
+          "StringSubstitutor",
+          "StringUtils.isEmpty",
+          "StringUtils.isBlank",
+          "CharUtils"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 0.3333,
+        "ndcg_at_5": 0.5177
+      },
+      {
+        "query_id": "RQ-005",
+        "retrieved_top_5": [
+          "MathUtils.gcd",
+          "NumberUtils.gcd",
+          "NumberUtils",
+          "IEEE754rUtils",
+          "Fraction"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9073
+      },
+      {
+        "query_id": "RQ-006",
+        "retrieved_top_5": [
+          "SecurityPositiveFixtures.runCommand",
+          "ProcessBuilder",
+          "SecurityPositiveFixtures.runProcess",
+          "Runtime",
+          "SecurityNegativeFixtures"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8344
+      },
+      {
+        "query_id": "RQ-007",
+        "retrieved_top_5": [
+          "Path",
+          "Paths",
+          "SecurityPositiveFixtures.readFile",
+          "SecurityNegativeFixtures.getSafePath",
+          "File"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "reciprocal_rank": 0.25,
+        "ndcg_at_5": 0.3558
+      },
+      {
+        "query_id": "RQ-008",
+        "retrieved_top_5": [
+          "PetType",
+          "Pet",
+          "PetTypeFormatter",
+          "parse",
+          "print"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 0.3333,
+        "ndcg_at_5": 0.5793
+      }
+    ],
+    "metrics": {
+      "precision_at_1": 0.5,
+      "precision_at_5": 0.45,
+      "precision_at_10": 0.225,
+      "recall_at_5": 0.6562,
+      "recall_at_10": 0.6562,
+      "mrr": 0.6562,
+      "ndcg_at_5": 0.6675
+    }
+  },
+  "B2_HYBRID": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_QUERIES",
+      "system_configuration": "B2_HYBRID",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:51.808406+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "queries": [
+      {
+        "query_id": "RQ-001",
+        "retrieved_top_5": [
+          "Vet",
+          "getSpecialties",
+          "Pet",
+          "addSpecialty",
+          "VetRepository"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9064
+      },
+      {
+        "query_id": "RQ-002",
+        "retrieved_top_5": [
+          "OwnerController",
+          "Owner",
+          "processFindForm",
+          "OwnerRepository",
+          "findPaginatedForOwnersLastName"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8296
+      },
+      {
+        "query_id": "RQ-003",
+        "retrieved_top_5": [
+          "VisitRepository",
+          "Visit",
+          "findByPetId",
+          "save",
+          "PetRepository"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8488
+      },
+      {
+        "query_id": "RQ-004",
+        "retrieved_top_5": [
+          "StringUtils",
+          "StringUtils.isBlank",
+          "StringUtils.isEmpty",
+          "StringSubstitutor",
+          "CharUtils"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 0.5,
+        "ndcg_at_5": 0.6291
+      },
+      {
+        "query_id": "RQ-005",
+        "retrieved_top_5": [
+          "MathUtils.gcd",
+          "NumberUtils.gcd",
+          "NumberUtils",
+          "Fraction",
+          "IEEE754rUtils"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9073
+      },
+      {
+        "query_id": "RQ-006",
+        "retrieved_top_5": [
+          "SecurityPositiveFixtures.runCommand",
+          "ProcessBuilder",
+          "SecurityPositiveFixtures.runProcess",
+          "Runtime",
+          "SecurityNegativeFixtures"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8344
+      },
+      {
+        "query_id": "RQ-007",
+        "retrieved_top_5": [
+          "Path",
+          "SecurityNegativeFixtures.getSafePath",
+          "SecurityPositiveFixtures.readFile",
+          "Paths",
+          "File"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "reciprocal_rank": 0.5,
+        "ndcg_at_5": 0.5213
+      },
+      {
+        "query_id": "RQ-008",
+        "retrieved_top_5": [
+          "PetTypeFormatter",
+          "PetType",
+          "parse",
+          "Pet",
+          "print"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8296
+      }
+    ],
+    "metrics": {
+      "precision_at_1": 0.75,
+      "precision_at_5": 0.475,
+      "precision_at_10": 0.2375,
+      "recall_at_5": 0.6875,
+      "recall_at_10": 0.6875,
+      "mrr": 0.875,
+      "ndcg_at_5": 0.7883
+    }
+  },
+  "P_PROPOSED": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_QUERIES",
+      "system_configuration": "P_PROPOSED",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:51.854085+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "queries": [
+      {
+        "query_id": "RQ-001",
+        "retrieved_top_5": [
+          "Vet",
+          "getSpecialties",
+          "addSpecialty",
+          "VetRepository",
+          "VetController"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9369
+      },
+      {
+        "query_id": "RQ-002",
+        "retrieved_top_5": [
+          "OwnerController",
+          "processFindForm",
+          "findPaginatedForOwnersLastName",
+          "Owner",
+          "OwnerRepository"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9369
+      },
+      {
+        "query_id": "RQ-003",
+        "retrieved_top_5": [
+          "VisitRepository",
+          "findByPetId",
+          "save",
+          "Visit",
+          "PetRepository"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9369
+      },
+      {
+        "query_id": "RQ-004",
+        "retrieved_top_5": [
+          "StringUtils.isBlank",
+          "StringUtils.isEmpty",
+          "StringUtils",
+          "StringSubstitutor",
+          "CharUtils"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9073
+      },
+      {
+        "query_id": "RQ-005",
+        "retrieved_top_5": [
+          "MathUtils.gcd",
+          "NumberUtils.gcd",
+          "NumberUtils",
+          "Fraction",
+          "IEEE754rUtils"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9073
+      },
+      {
+        "query_id": "RQ-006",
+        "retrieved_top_5": [
+          "SecurityPositiveFixtures.runCommand",
+          "SecurityPositiveFixtures.runProcess",
+          "ProcessBuilder",
+          "Runtime",
+          "SecurityNegativeFixtures"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9073
+      },
+      {
+        "query_id": "RQ-007",
+        "retrieved_top_5": [
+          "SecurityNegativeFixtures.getSafePath",
+          "Path",
+          "SecurityPositiveFixtures.readFile",
+          "Paths",
+          "File"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8262
+      },
+      {
+        "query_id": "RQ-008",
+        "retrieved_top_5": [
+          "PetTypeFormatter",
+          "parse",
+          "print",
+          "PetType",
+          "Pet"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9369
+      }
+    ],
+    "metrics": {
+      "precision_at_1": 1.0,
+      "precision_at_5": 0.475,
+      "precision_at_10": 0.2375,
+      "recall_at_5": 0.6875,
+      "recall_at_10": 0.6875,
+      "mrr": 1.0,
+      "ndcg_at_5": 0.912
+    }
+  },
+  "A1_ABLATION_LEXICAL_ONLY": {
+    "provenance": {
+      "dataset_version": "1.0.0",
+      "case_id": "ALL_QUERIES",
+      "system_configuration": "A1_ABLATION_LEXICAL_ONLY",
+      "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+      "timestamp": "2026-10-06T16:53:51.899193+00:00",
+      "metric_definition_version": "1.0.0"
+    },
+    "queries": [
+      {
+        "query_id": "RQ-001",
+        "retrieved_top_5": [
+          "Vet",
+          "getSpecialties",
+          "VetRepository",
+          "Pet",
+          "Owner"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.5,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.7171
+      },
+      {
+        "query_id": "RQ-002",
+        "retrieved_top_5": [
+          "Owner",
+          "OwnerRepository",
+          "OwnerController",
+          "processFindForm",
+          "findPaginatedForOwnersLastName"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 0.3333,
+        "ndcg_at_5": 0.5793
+      },
+      {
+        "query_id": "RQ-003",
+        "retrieved_top_5": [
+          "VisitRepository",
+          "Visit",
+          "save",
+          "findByPetId",
+          "PetRepository"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8488
+      },
+      {
+        "query_id": "RQ-004",
+        "retrieved_top_5": [
+          "StringUtils",
+          "StringSubstitutor",
+          "StringUtils.isEmpty",
+          "StringUtils.isBlank",
+          "CharUtils"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 0.3333,
+        "ndcg_at_5": 0.5177
+      },
+      {
+        "query_id": "RQ-005",
+        "retrieved_top_5": [
+          "MathUtils.gcd",
+          "NumberUtils.gcd",
+          "NumberUtils",
+          "IEEE754rUtils",
+          "Fraction"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.9073
+      },
+      {
+        "query_id": "RQ-006",
+        "retrieved_top_5": [
+          "SecurityPositiveFixtures.runCommand",
+          "ProcessBuilder",
+          "SecurityPositiveFixtures.runProcess",
+          "Runtime",
+          "SecurityNegativeFixtures"
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_5": 0.4,
+        "recall_at_5": 0.6667,
+        "reciprocal_rank": 1.0,
+        "ndcg_at_5": 0.8344
+      },
+      {
+        "query_id": "RQ-007",
+        "retrieved_top_5": [
+          "Path",
+          "Paths",
+          "SecurityPositiveFixtures.readFile",
+          "SecurityNegativeFixtures.getSafePath",
+          "File"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.2,
+        "recall_at_5": 0.5,
+        "reciprocal_rank": 0.25,
+        "ndcg_at_5": 0.3558
+      },
+      {
+        "query_id": "RQ-008",
+        "retrieved_top_5": [
+          "PetType",
+          "Pet",
+          "PetTypeFormatter",
+          "parse",
+          "print"
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_5": 0.6,
+        "recall_at_5": 0.75,
+        "reciprocal_rank": 0.3333,
+        "ndcg_at_5": 0.5793
+      }
+    ],
+    "metrics": {
+      "precision_at_1": 0.5,
+      "precision_at_5": 0.45,
+      "precision_at_10": 0.225,
+      "recall_at_5": 0.6562,
+      "recall_at_10": 0.6562,
+      "mrr": 0.6562,
+      "ndcg_at_5": 0.6675
+    }
+  }
+}

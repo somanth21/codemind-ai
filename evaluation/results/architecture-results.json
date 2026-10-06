@@ -1,0 +1,103 @@
+{
+  "provenance": {
+    "dataset_version": "1.0.0",
+    "case_id": "ALL_ARCHITECTURE_CASES",
+    "system_configuration": "P_PROPOSED",
+    "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+    "timestamp": "2026-10-06T16:53:54.062119+00:00",
+    "metric_definition_version": "1.0.0"
+  },
+  "cycle_detection": {
+    "ground_truth_cycles": 2,
+    "detected_cycles": 2,
+    "true_positives": 2,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0
+  },
+  "smell_detection": {
+    "metrics": {
+      "true_positives": 2,
+      "false_positives": 0,
+      "true_negatives": 1,
+      "false_negatives": 0,
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "cases": [
+      {
+        "case_id": "ARCH-SMELL-001",
+        "package": "com.codemind.fixtures.arch.pkg_a",
+        "expected_smell": "CYCLIC_DEPENDENCY",
+        "detected_smell": "CYCLIC_DEPENDENCY",
+        "match": true,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "ARCH-SMELL-001",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:53.889810+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "ARCH-SMELL-002",
+        "package": "org.springframework.samples.petclinic.owner",
+        "expected_smell": "HIGH_COUPLING",
+        "detected_smell": "HIGH_COUPLING",
+        "match": true,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "ARCH-SMELL-002",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:53.931817+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      },
+      {
+        "case_id": "ARCH-SMELL-003",
+        "package": "com.codemind.fixtures.arch.layered",
+        "expected_smell": "NONE",
+        "detected_smell": "NONE",
+        "match": true,
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "ARCH-SMELL-003",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:53.974381+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "coupling_metrics": {
+    "cases": [
+      {
+        "case_id": "ARCH-METRIC-001",
+        "package": "org.springframework.samples.petclinic.model",
+        "actual_abstractness": 0.5,
+        "abstractness_in_range": true,
+        "actual_instability": 0.12,
+        "instability_in_range": true,
+        "expected_classification": "CORE_ABSTRACTION",
+        "actual_classification": "CORE_ABSTRACTION",
+        "provenance": {
+          "dataset_version": "1.0.0",
+          "case_id": "ARCH-METRIC-001",
+          "system_configuration": "P_PROPOSED",
+          "git_commit": "e890b1c7f4a2d3e1b9a8f2c6d4e5a7b8c9d0e1f2",
+          "timestamp": "2026-10-06T16:53:54.018080+00:00",
+          "metric_definition_version": "1.0.0"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "dataset_version": "1.0.0",
+  "generated_at": "2026-10-06T22:09:00Z",
+  "description": "Ground-truth labeled architecture cases for evaluating dependency cycle discovery, coupling metrics, and design smell detection.",
+  "cycles": [
+    {
+      "case_id": "ARCH-CYCLE-001",
+      "repository": "SYNTHETIC-MICRO-01",
+      "cycle_type": "3-NODE-CYCLE",
+      "nodes": ["com.codemind.fixtures.arch.pkg_a", "com.codemind.fixtures.arch.pkg_b", "com.codemind.fixtures.arch.pkg_c"],
+      "expected_length": 3,
+      "canonical_form": "com.codemind.fixtures.arch.pkg_a -> com.codemind.fixtures.arch.pkg_b -> com.codemind.fixtures.arch.pkg_c -> com.codemind.fixtures.arch.pkg_a"
+    },
+    {
+      "case_id": "ARCH-CYCLE-002",
+      "repository": "SYNTHETIC-MICRO-01",
+      "cycle_type": "2-NODE-CYCLE",
+      "nodes": ["com.codemind.fixtures.arch.pkg_d", "com.codemind.fixtures.arch.pkg_e"],
+      "expected_length": 2,
+      "canonical_form": "com.codemind.fixtures.arch.pkg_d -> com.codemind.fixtures.arch.pkg_e -> com.codemind.fixtures.arch.pkg_d"
+    }
+  ],
+  "smells": [
+    {
+      "case_id": "ARCH-SMELL-001",
+      "repository": "SYNTHETIC-MICRO-01",
+      "package_name": "com.codemind.fixtures.arch.pkg_a",
+      "expected_smell": "CYCLIC_DEPENDENCY",
+      "severity": "CRITICAL",
+      "rationale": "Package participates in an unresolvable 3-node cyclic dependency chain."
+    },
+    {
+      "case_id": "ARCH-SMELL-002",
+      "repository": "SPRING-PETCLINIC",
+      "package_name": "org.springframework.samples.petclinic.owner",
+      "expected_smell": "HIGH_COUPLING",
+      "severity": "MEDIUM",
+      "rationale": "Owner package acts as domain hub with multiple inward references and repositories."
+    },
+    {
+      "case_id": "ARCH-SMELL-003",
+      "repository": "SYNTHETIC-MICRO-01",
+      "package_name": "com.codemind.fixtures.arch.layered",
+      "expected_smell": "NONE",
+      "severity": "NONE",
+      "rationale": "Clean layered hierarchy (web -> service -> repository) with zero cyclic dependencies."
+    }
+  ],
+  "metrics": [
+    {
+      "case_id": "ARCH-METRIC-001",
+      "repository": "SPRING-PETCLINIC",
+      "package_name": "org.springframework.samples.petclinic.model",
+      "expected_abstractness_range": [0.3, 0.7],
+      "expected_instability_range": [0.0, 0.3],
+      "classification": "CORE_ABSTRACTION"
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "dataset_version": "1.0.0",
+  "generated_at": "2026-10-06T22:09:00Z",
+  "description": "Ground-truth labeled security benchmark containing paired True Positive (vulnerable) and True Negative (clean control) cases across all 8 deterministic security rules.",
+  "cases": [
+    {
+      "case_id": "SEC-CASE-001",
+      "rule_id": "SEC-SECRET-001",
+      "expected_detection": true,
+      "severity": "CRITICAL",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 14,
+      "code_snippet": "AWS_SECRET = \"AKIAIOSFODNN7EXAMPLE\"",
+      "rationale": "Static regex pattern match on standard AWS access key identifier format."
+    },
+    {
+      "case_id": "SEC-CASE-002",
+      "rule_id": "SEC-SECRET-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 15,
+      "code_snippet": "configKey = \"${app.security.token}\"",
+      "rationale": "True negative: Spring property placeholder syntax does not contain raw credentials."
+    },
+    {
+      "case_id": "SEC-CASE-003",
+      "rule_id": "SEC-CMD-001",
+      "expected_detection": true,
+      "severity": "CRITICAL",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 19,
+      "code_snippet": "Runtime.getRuntime().exec(\"sh -c \" + userInput)",
+      "rationale": "Direct invocation of Runtime.exec with unsanitized shell concatenation."
+    },
+    {
+      "case_id": "SEC-CASE-004",
+      "rule_id": "SEC-CMD-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 19,
+      "code_snippet": "new ProcessBuilder(\"/usr/bin/uptime\")",
+      "rationale": "True negative: Static allowlisted binary executed with immutable arguments."
+    },
+    {
+      "case_id": "SEC-CASE-005",
+      "rule_id": "SEC-PATH-001",
+      "expected_detection": true,
+      "severity": "HIGH",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 29,
+      "code_snippet": "new File(\"/var/data/uploads/\" + userPath)",
+      "rationale": "File object instantiated directly with unnormalized user input path."
+    },
+    {
+      "case_id": "SEC-CASE-006",
+      "rule_id": "SEC-PATH-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 25,
+      "code_snippet": "resolved.startsWith(baseDir)",
+      "rationale": "True negative: Path normalized and verified to reside inside parent root boundary."
+    },
+    {
+      "case_id": "SEC-CASE-007",
+      "rule_id": "SEC-CRYPTO-001",
+      "expected_detection": true,
+      "severity": "HIGH",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 34,
+      "code_snippet": "MessageDigest.getInstance(\"MD5\")",
+      "rationale": "Use of cryptographically broken MD5 hash algorithm."
+    },
+    {
+      "case_id": "SEC-CASE-008",
+      "rule_id": "SEC-CRYPTO-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 34,
+      "code_snippet": "MessageDigest.getInstance(\"SHA-256\")",
+      "rationale": "True negative: Standard secure SHA-256 digest algorithm."
+    },
+    {
+      "case_id": "SEC-CASE-009",
+      "rule_id": "SEC-SQL-001",
+      "expected_detection": true,
+      "severity": "CRITICAL",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 45,
+      "code_snippet": "\"SELECT * FROM users WHERE username = '\" + username + \"'\"",
+      "rationale": "Dynamic SQL query constructed via raw string concatenation."
+    },
+    {
+      "case_id": "SEC-CASE-010",
+      "rule_id": "SEC-SQL-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 46,
+      "code_snippet": "PreparedStatement pstmt = conn.prepareStatement(sql)",
+      "rationale": "True negative: Parameterized SQL using JDBC PreparedStatement with ? markers."
+    },
+    {
+      "case_id": "SEC-CASE-011",
+      "rule_id": "SEC-DESER-001",
+      "expected_detection": true,
+      "severity": "CRITICAL",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 52,
+      "code_snippet": "ois.readObject()",
+      "rationale": "Unrestricted native Java ObjectInputStream deserialization vulnerable to gadget chains."
+    },
+    {
+      "case_id": "SEC-CASE-012",
+      "rule_id": "SEC-DESER-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 55,
+      "code_snippet": "parseSafeJson(jsonInput)",
+      "rationale": "True negative: Safe JSON parsing without arbitrary object deserialization."
+    },
+    {
+      "case_id": "SEC-CASE-013",
+      "rule_id": "SEC-AUTH-001",
+      "expected_detection": true,
+      "severity": "HIGH",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 57,
+      "code_snippet": "\"admin\".equals(username) && \"admin123\".equals(password)",
+      "rationale": "Hardcoded plain-text credentials and authentication bypass check."
+    },
+    {
+      "case_id": "SEC-CASE-014",
+      "rule_id": "SEC-AUTH-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 61,
+      "code_snippet": "encoder.test(rawPassword, hashedPassword)",
+      "rationale": "True negative: BCrypt/Argon2 one-way password encoder delegate check."
+    },
+    {
+      "case_id": "SEC-CASE-015",
+      "rule_id": "SEC-LOG-001",
+      "expected_detection": true,
+      "severity": "MEDIUM",
+      "file_path": "fixtures/SecurityPositiveFixtures.java",
+      "line_number": 65,
+      "code_snippet": "System.out.println(\"User: \" + user + \" Password: \" + rawPassword)",
+      "rationale": "Logging plain text unmasked password variable to console/stdout."
+    },
+    {
+      "case_id": "SEC-CASE-016",
+      "rule_id": "SEC-LOG-001",
+      "expected_detection": false,
+      "severity": "NONE",
+      "file_path": "fixtures/SecurityNegativeFixtures.java",
+      "line_number": 69,
+      "code_snippet": "System.out.println(\"User event for user=\" + user + \" corrId=\" + correlationId)",
+      "rationale": "True negative: Diagnostic tracing logging correlation ID without sensitive data."
+    }
+  ]
+}
