@@ -63,10 +63,10 @@ codemind:
   llm:
     provider: ${LLM_PROVIDER:GEMINI}
     api-key: ${CODEMIND_LLM_API_KEY:${LLM_API_KEY:placeholder_api_key}}
-    model: ${LLM_MODEL:gemini-1.5-pro}
+    model: ${LLM_MODEL:gemini-flash-lite-latest}
     temperature: ${LLM_TEMPERATURE:0.1}
     max-tokens: ${LLM_MAX_TOKENS:2048}
-    timeout-seconds: ${LLM_TIMEOUT_SECONDS:15}
+    timeout-seconds: ${LLM_TIMEOUT_SECONDS:45}
     rate-limit-per-user-per-minute: ${LLM_RATE_LIMIT_USER:10}
     rate-limit-per-repo-per-minute: ${LLM_RATE_LIMIT_REPO:20}
 

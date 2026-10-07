@@ -16,7 +16,8 @@ export const SearchPage: React.FC = () => {
   }
 
   return (
-    <div className="search-page">
+    <div className="search-page relative" data-testid="search-page">
+      <div className="cm-ambient-glow" style={{ top: -60, left: 80, opacity: 0.6 }} />
       <RepositorySearchView
         repositoryId={selectedRepo.id}
         repositoryName={selectedRepo.name}

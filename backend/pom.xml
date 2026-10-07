@@ -104,6 +104,13 @@
             <version>${javaparser.version}</version>
         </dependency>
 
+        <!-- Server-side PDF Report Generation (Apache PDFBox) -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.31</version>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

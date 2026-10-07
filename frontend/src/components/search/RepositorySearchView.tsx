@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getAnalysisRuns, getSymbols } from '../../api/analysis';
 import { AnalysisRun, SymbolItem } from '../../types/analysis';
 import {
   Search,
   SlidersHorizontal,
   FileCode,
-  Sparkles,
-  GitFork,
-  AlertCircle,
-  Loader2,
-  ArrowRight,
-  Layers,
 } from 'lucide-react';
 
 interface RepositorySearchViewProps {
@@ -34,7 +27,6 @@ export const RepositorySearchView: React.FC<RepositorySearchViewProps> = ({
   repositoryId,
   repositoryName,
 }) => {
-  const navigate = useNavigate();
   const [runs, setRuns] = useState<AnalysisRun[]>([]);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [symbols, setSymbols] = useState<SymbolItem[]>([]);
@@ -59,7 +51,6 @@ export const RepositorySearchView: React.FC<RepositorySearchViewProps> = ({
     }
   };
 
-  // Fetch runs & initial symbols on mount
   useEffect(() => {
     let isMounted = true;
     const init = async () => {
@@ -99,103 +90,104 @@ export const RepositorySearchView: React.FC<RepositorySearchViewProps> = ({
     await loadSymbolsForRun(repositoryId, runId);
   };
 
-  // Compute Scored Symbols with Reciprocal Rank Fusion
-  const searchResults = useMemo<ScoredSymbol[]>(() => {
+  // Reciprocal Rank Fusion (RRF) Calculation
+  const filteredSymbols = useMemo(() => {
+    const k = 60; // Standard RRF smoothing constant
+
+    // Filter by kind first if specified
+    const pool = kindFilter
+      ? symbols.filter((s) => s.kind.toUpperCase() === kindFilter.toUpperCase())
+      : symbols;
+
     if (!query.trim()) {
-      // When query is empty, show filtered symbols with baseline rank
-      const filtered = kindFilter ? symbols.filter((s) => s.kind === kindFilter) : symbols;
-      return filtered.slice(0, 30).map((symbol, idx) => ({
-        symbol,
-        lexicalScore: 0,
-        lexicalRank: idx + 1,
-        semanticScore: 0,
-        semanticRank: idx + 1,
-        rrfScore: 0,
+      return pool.map((s) => ({
+        symbol: s,
+        lexicalScore: 1.0,
+        lexicalRank: 1,
+        semanticScore: 1.0,
+        semanticRank: 1,
+        rrfScore: 1.0,
       }));
     }
 
-    const q = query.trim().toLowerCase();
-    const queryTokens = q.split(/\s+/).filter(Boolean);
+    const qLower = query.toLowerCase();
 
-    // Filter by kind first if specified
-    const candidateSymbols = kindFilter ? symbols.filter((s) => s.kind === kindFilter) : symbols;
+    // 1. Lexical Scoring (Token match in name, docstring, signature, fqn)
+    const lexicalRanked = pool
+      .map((s) => {
+        let score = 0;
+        const nameLower = (s.name || '').toLowerCase();
+        const fqnLower = (s.fqn || '').toLowerCase();
+        const docLower = (s.docstring || '').toLowerCase();
+        const sigLower = (s.signature || '').toLowerCase();
 
-    // 1. Calculate Lexical Scores
-    const lexicalScored = candidateSymbols.map((sym) => {
-      const name = sym.name.toLowerCase();
-      const fqn = (sym.fqn || '').toLowerCase();
-      const filePath = sym.filePath.toLowerCase();
+        if (nameLower === qLower) score += 10.0;
+        else if (nameLower.startsWith(qLower)) score += 6.0;
+        else if (nameLower.includes(qLower)) score += 4.0;
 
-      let score = 0;
-      if (name === q) score += 100;
-      else if (name.startsWith(q)) score += 60;
-      else if (name.includes(q)) score += 40;
+        if (fqnLower.includes(qLower)) score += 3.0;
+        if (sigLower.includes(qLower)) score += 2.0;
+        if (docLower.includes(qLower)) score += 1.0;
 
-      queryTokens.forEach((token) => {
-        if (name.includes(token)) score += 20;
-        if (fqn.includes(token)) score += 10;
-        if (filePath.includes(token)) score += 5;
-      });
+        return { symbol: s, score };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score);
 
-      return { sym, score };
+    const lexicalMap = new Map<string, { rank: number; score: number }>();
+    lexicalRanked.forEach((item, index) => {
+      lexicalMap.set(item.symbol.id, { rank: index + 1, score: item.score });
     });
 
-    lexicalScored.sort((a, b) => b.score - a.score);
-    const lexicalRankMap = new Map<string, { score: number; rank: number }>();
-    lexicalScored.forEach((item, index) => {
-      lexicalRankMap.set(item.sym.id, { score: item.score, rank: index + 1 });
-    });
+    // 2. Semantic/Signature Scoring (Simulated cosine structural similarity)
+    const semanticRanked = pool
+      .map((s) => {
+        let score = 0;
+        const qWords = qLower.split(/\s+/).filter(Boolean);
+        const textToMatch = `${s.name} ${s.kind} ${s.signature || ''} ${s.docstring || ''}`.toLowerCase();
 
-    // 2. Calculate Semantic / Structural Scores (only awarded if query matched)
-    const semanticScored = candidateSymbols.map((sym) => {
-      let score = 0;
-      let matched = false;
-      const signature = (sym.signature || '').toLowerCase();
-      const doc = (sym.docstring || '').toLowerCase();
+        let matchedWords = 0;
+        qWords.forEach((w) => {
+          if (textToMatch.includes(w)) matchedWords++;
+        });
 
-      if (sym.name.toLowerCase().includes(q)) {
-        score += 30;
-        matched = true;
-      }
-
-      queryTokens.forEach((token) => {
-        if (signature.includes(token)) {
-          score += 25;
-          matched = true;
+        if (matchedWords > 0) {
+          score = (matchedWords / qWords.length) * 0.9;
+          if (s.docstring && s.docstring.toLowerCase().includes(qLower)) {
+            score += 0.1;
+          }
         }
-        if (doc.includes(token)) {
-          score += 15;
-          matched = true;
-        }
-      });
 
-      // Structural bonus by AST kind ONLY if query matched
-      if (matched) {
-        if (sym.kind === 'CLASS' || sym.kind === 'INTERFACE') score += 15;
-        if (sym.kind === 'METHOD' && sym.visibility === 'PUBLIC') score += 20;
-      }
+        return { symbol: s, score: Math.min(score, 1.0) };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score);
 
-      return { sym, score };
+    const semanticMap = new Map<string, { rank: number; score: number }>();
+    semanticRanked.forEach((item, index) => {
+      semanticMap.set(item.symbol.id, { rank: index + 1, score: item.score });
     });
 
-    semanticScored.sort((a, b) => b.score - a.score);
-    const semanticRankMap = new Map<string, { score: number; rank: number }>();
-    semanticScored.forEach((item, index) => {
-      semanticRankMap.set(item.sym.id, { score: item.score, rank: index + 1 });
-    });
+    // 3. Reciprocal Rank Fusion
+    const combinedMap = new Map<string, SymbolItem>();
+    lexicalRanked.forEach((i) => combinedMap.set(i.symbol.id, i.symbol));
+    semanticRanked.forEach((i) => combinedMap.set(i.symbol.id, i.symbol));
 
-    // 3. Combine with Reciprocal Rank Fusion: RRF = 1 / (60 + r_lex) + 1 / (60 + r_sem)
-    const combined: ScoredSymbol[] = candidateSymbols.map((sym) => {
-      const lex = lexicalRankMap.get(sym.id) || { score: 0, rank: 999 };
-      const sem = semanticRankMap.get(sym.id) || { score: 0, rank: 999 };
-      const rrf = 1 / (60 + lex.rank) + 1 / (60 + sem.rank);
+    const combined: ScoredSymbol[] = Array.from(combinedMap.values()).map((s) => {
+      const lex = lexicalMap.get(s.id);
+      const sem = semanticMap.get(s.id);
+
+      const lRank = lex ? lex.rank : 9999;
+      const sRank = sem ? sem.rank : 9999;
+
+      const rrf = (lex ? 1 / (k + lRank) : 0) + (sem ? 1 / (k + sRank) : 0);
 
       return {
-        symbol: sym,
-        lexicalScore: lex.score,
-        lexicalRank: lex.rank,
-        semanticScore: sem.score,
-        semanticRank: sem.rank,
+        symbol: s,
+        lexicalScore: lex ? lex.score : 0,
+        lexicalRank: lRank,
+        semanticScore: sem ? sem.score : 0,
+        semanticRank: sRank,
         rrfScore: rrf,
       };
     });
@@ -217,283 +209,342 @@ export const RepositorySearchView: React.FC<RepositorySearchViewProps> = ({
   }, [symbols, query, kindFilter, searchMode]);
 
   return (
-    <div className="space-y-6" data-testid="repository-search-view">
-      {/* Search Header */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-indigo-500/10 p-2.5 text-indigo-400 border border-indigo-500/20">
-              <Search className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-white">Hybrid Repository Search</h2>
-                {repositoryName && (
-                  <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                    {repositoryName}
-                  </span>
-                )}
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
-                  Deterministic Index
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Reciprocal Rank Fusion (RRF) over lexical tokens and AST symbol evidence with exact source-line provenance.
-              </p>
-            </div>
-          </div>
-
-          {/* Analysis Run Selector */}
-          {runs.length > 0 && (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400 font-medium">Index Snapshot:</span>
-              <select
-                value={selectedRunId || ''}
-                onChange={(e) => handleRunChange(e.target.value)}
-                className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-              >
-                {runs.map((run) => (
-                  <option key={run.id} value={run.id}>
-                    {new Date(run.startedAt).toLocaleTimeString()} ({run.totalClasses} classes, {run.totalMethods} methods)
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+    <div style={{ maxWidth: '1240px', margin: '0 auto', paddingBottom: '60px' }} data-testid="repository-search-view">
+      {/* ============ CONSISTENT PAGE HEADER ============ */}
+      <div style={{ marginBottom: '28px' }}>
+        {/* Repo context indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)', marginBottom: '14px' }}>
+          <span>CodeMind AI</span>
+          <span>/</span>
+          <span style={{ color: '#ffffff', fontWeight: 600 }}>{repositoryName || 'Active Repository'}</span>
+          <span style={{ margin: '0 4px', opacity: 0.3 }}>&bull;</span>
+          <span className="cm-tag-pill cyan font-mono">
+            Deterministic Index
+          </span>
         </div>
 
-        {/* Search Input Bar & Controls */}
-        <div className="mt-5 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search symbols by name, signature, interface, or responsibility (e.g. Order, calculate, Repository)..."
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                data-testid="search-input"
-              />
+        <div className="cm-eyebrow mb-2">
+          CODE SEARCH WORKSPACE &bull; HYBRID RETRIEVAL
+        </div>
+
+        <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.03em', color: '#ffffff', margin: '0 0 8px 0' }}>
+          SEARCH &mdash; Hybrid Repository Search
+        </h1>
+        <p style={{ fontSize: '0.92rem', color: 'var(--ref-ink-soft)', margin: 0, maxWidth: '720px', lineHeight: 1.5 }}>
+          Find implementations across your repository. Reciprocal Rank Fusion (RRF) combines lexical tokens and AST symbol evidence with exact source-line provenance.
+        </p>
+      </div>
+
+      {/* ============ LARGE PROFESSIONAL SEARCH INPUT & CONTROLS ============ */}
+      <div
+        className="cm-clay-card"
+        style={{
+          padding: '20px 24px',
+          marginBottom: '24px',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {error && (
+            <div style={{ padding: '10px 14px', borderRadius: '10px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', fontSize: '0.8rem' }}>
+              {error}
+            </div>
+          )}
+          {/* Main search bar */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <Search size={18} style={{ position: 'absolute', left: '18px', color: 'var(--ref-orange-3)', pointerEvents: 'none' }} />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search symbols, methods, files, signatures (e.g. OrderService, calculateDiscount, processPayment)..."
+              data-testid="search-input"
+              style={{
+                width: '100%',
+                padding: '14px 110px 14px 50px',
+                fontSize: '0.95rem',
+                backgroundColor: 'rgba(7, 10, 18, 0.8)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '999px',
+                outline: 'none',
+                fontFamily: 'var(--font-sans)',
+                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.4)',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--ref-orange-3)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(232, 90, 43, 0.15)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                e.target.style.boxShadow = 'inset 0 2px 4px rgba(0, 0, 0, 0.4)';
+              }}
+            />
+            <div style={{ position: 'absolute', right: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               {query && (
                 <button
                   onClick={() => setQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                  style={{ background: 'none', border: 'none', color: 'var(--ref-mute)', fontSize: '0.75rem', cursor: 'pointer', padding: '2px 6px' }}
                 >
                   Clear
                 </button>
               )}
+              <span
+                style={{
+                  fontSize: '0.7rem',
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--ref-mute)',
+                  padding: '3px 7px',
+                  borderRadius: '5px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                ⌘K
+              </span>
             </div>
+          </div>
 
-            {/* Mode Selector */}
-            <div className="flex rounded-lg border border-slate-700 bg-slate-950 p-1">
+          {/* Search Controls Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', paddingTop: '4px' }}>
+            {/* Search Mode Pill Group */}
+            <div className="cm-pill-nav" style={{ padding: '4px' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)', padding: '0 8px', textTransform: 'uppercase' }}>
+                Mode:
+              </span>
               <button
                 type="button"
                 onClick={() => setSearchMode('HYBRID')}
-                className={`px-3 py-1 text-xs font-semibold rounded transition ${
-                  searchMode === 'HYBRID'
-                    ? 'bg-indigo-600 text-white shadow'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-                title="Combines Lexical + Semantic via Reciprocal Rank Fusion"
+                className={`cm-pill-tab ${searchMode === 'HYBRID' ? 'active' : ''}`}
               >
                 Hybrid (RRF)
               </button>
               <button
                 type="button"
                 onClick={() => setSearchMode('LEXICAL')}
-                className={`px-3 py-1 text-xs font-semibold rounded transition ${
-                  searchMode === 'LEXICAL'
-                    ? 'bg-indigo-600 text-white shadow'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-                title="Token and exact identifier substring match"
+                className={`cm-pill-tab ${searchMode === 'LEXICAL' ? 'active' : ''}`}
               >
                 Lexical
               </button>
               <button
                 type="button"
                 onClick={() => setSearchMode('SEMANTIC')}
-                className={`px-3 py-1 text-xs font-semibold rounded transition ${
-                  searchMode === 'SEMANTIC'
-                    ? 'bg-indigo-600 text-white shadow'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-                title="AST signature & structural type rank"
+                className={`cm-pill-tab ${searchMode === 'SEMANTIC' ? 'active' : ''}`}
               >
                 Semantic
               </button>
             </div>
-          </div>
 
-          {/* Filters & Results Counter */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 pt-2">
-            <div className="flex items-center gap-3">
-              <SlidersHorizontal className="h-3.5 w-3.5 text-slate-500" />
-              <span>Filter Kind:</span>
-              <select
-                value={kindFilter}
-                onChange={(e) => setKindFilter(e.target.value)}
-                className="rounded border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-200 focus:outline-none"
-              >
-                <option value="">All Symbol Kinds</option>
-                <option value="CLASS">Class</option>
-                <option value="INTERFACE">Interface</option>
-                <option value="METHOD">Method</option>
-                <option value="CONSTRUCTOR">Constructor</option>
-                <option value="ENUM">Enum</option>
-                <option value="RECORD">Record</option>
-                <option value="FIELD">Field</option>
-              </select>
-            </div>
+            {/* Filters & Run selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <SlidersHorizontal size={13} style={{ color: 'var(--ref-mute)' }} />
+                <span style={{ fontSize: '0.75rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>Kind:</span>
+                <select
+                  value={kindFilter}
+                  onChange={(e) => setKindFilter(e.target.value)}
+                  aria-label="Filter Symbol Kind"
+                  className="bg-slate-900/80 border border-white/10 rounded-lg text-white font-mono"
+                  style={{
+                    padding: '5px 10px',
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="">All Symbol Kinds</option>
+                  <option value="CLASS">Class</option>
+                  <option value="INTERFACE">Interface</option>
+                  <option value="METHOD">Method</option>
+                  <option value="CONSTRUCTOR">Constructor</option>
+                  <option value="ENUM">Enum</option>
+                  <option value="RECORD">Record</option>
+                  <option value="FIELD">Field</option>
+                </select>
+              </div>
 
-            <div className="flex items-center gap-4">
-              <span>Index Size: {symbols.length} AST symbols</span>
-              <span className="font-semibold text-slate-200">
-                Found {searchResults.length} matching evidence items
-              </span>
+              {runs.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>Snapshot:</span>
+                  <select
+                    value={selectedRunId || ''}
+                    onChange={(e) => handleRunChange(e.target.value)}
+                    aria-label="Select Index Snapshot"
+                    className="bg-slate-900/80 border border-white/10 rounded-lg text-white font-mono"
+                    style={{
+                      padding: '5px 10px',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {runs.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {new Date(r.startedAt).toLocaleTimeString()} ({r.totalClasses}C / {r.totalMethods}M)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Error State */}
-      {error && (
-        <div className="rounded-lg border border-rose-800/50 bg-rose-950/40 p-4 text-xs text-rose-300 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{error}</span>
+      {/* ============ RESULTS SECTION ============ */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', fontSize: '0.78rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>
+          <span>
+            Showing <strong style={{ color: '#ffffff' }}>{filteredSymbols.length}</strong> symbol {filteredSymbols.length === 1 ? 'match' : 'matches'}
+          </span>
+          <span>
+            {searchMode === 'HYBRID' ? 'Ranked via Reciprocal Rank Fusion' : searchMode === 'LEXICAL' ? 'Ranked via Token Match' : 'Ranked via AST Signature'}
+          </span>
         </div>
-      )}
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex min-h-[240px] flex-col items-center justify-center space-y-3">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-          <span className="text-xs text-slate-400">Loading deterministic symbol evidence index...</span>
-        </div>
-      )}
-
-      {/* No Runs Warning */}
-      {!loading && runs.length === 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center">
-          <Layers className="h-10 w-10 text-slate-600 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-200">No Static Analysis Runs Available</h3>
-          <p className="mt-1 text-xs text-slate-400 max-w-md mx-auto">
-            Repository must undergo deterministic static AST analysis before the symbol evidence index can be searched.
-          </p>
-          <button
-            onClick={() => navigate('/analysis')}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition"
-          >
-            <span>Run Static Analysis</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
-
-      {/* Search Results List */}
-      {!loading && runs.length > 0 && (
-        <div className="space-y-3">
-          {searchResults.length === 0 ? (
-            <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-10 text-center text-slate-400">
-              <Search className="h-8 w-8 text-slate-600 mx-auto mb-2" />
-              <div className="text-sm font-medium text-slate-300">No matching symbol evidence found</div>
-              <div className="text-xs text-slate-500 mt-1">
-                Try searching for different method names, classes, or adjusting the filter.
+        {loading ? (
+          /* Sleek Skeleton Loading State */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '20px',
+                  borderRadius: '12px',
+                  backgroundColor: '#0d1220',
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  animation: 'pulse 1.8s infinite',
+                }}
+              >
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ width: '60px', height: '18px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '4px' }} />
+                  <div style={{ width: '180px', height: '18px', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: '4px' }} />
+                </div>
+                <div style={{ width: '280px', height: '14px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '4px' }} />
               </div>
+            ))}
+          </div>
+        ) : filteredSymbols.length === 0 ? (
+          /* Empty Search State */
+          <div
+            className="cm-clay-card text-center"
+            style={{
+              padding: '60px 24px',
+            }}
+          >
+            <div className="cm-icon-tile mx-auto mb-3" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--ref-mute)' }}>
+              <Search size={22} />
             </div>
-          ) : (
-            searchResults.map((item, index) => {
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', marginBottom: '6px' }}>
+              Search your repository
+            </h4>
+            <p style={{ fontSize: '0.85rem', color: 'var(--ref-ink-soft)', maxWidth: '440px', margin: '0 auto' }}>
+              Connect a repository and search across symbols, methods, and implementations.
+            </p>
+          </div>
+        ) : (
+          /* Dense Professional Developer Results Layout */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {filteredSymbols.map((item) => {
               const sym = item.symbol;
+              const kindPillClass =
+                sym.kind === 'CLASS'
+                  ? 'cyan'
+                  : sym.kind === 'METHOD'
+                  ? 'amber'
+                  : sym.kind === 'INTERFACE'
+                  ? 'blue'
+                  : 'green';
+
               return (
                 <div
                   key={sym.id}
-                  className="rounded-xl border border-slate-800 bg-slate-900/90 p-4 shadow-sm hover:border-slate-700 transition"
-                  data-testid="search-result-item"
+                  className="cm-clay-card"
+                  style={{
+                    padding: '16px 20px',
+                    borderRadius: '14px',
+                  }}
                 >
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
-                    <div className="space-y-1.5 flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 text-[11px] font-semibold font-mono">
-                          {sym.kind}
+                  {/* Top Bar: Symbol Name + Badges + Score */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span className={`cm-tag-pill ${kindPillClass} font-mono`}>
+                        {sym.kind}
+                      </span>
+                      <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>
+                        {sym.name}
+                      </span>
+                      {sym.visibility && (
+                        <span style={{ fontSize: '0.68rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>
+                          {sym.visibility.toLowerCase()}
                         </span>
-
-                        <span className="font-mono text-sm font-bold text-white truncate">
-                          {sym.name}
-                        </span>
-
-                        {sym.visibility && (
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            [{sym.visibility.toLowerCase()}]
-                          </span>
-                        )}
-
-                        {/* Search Ranks / Scores Badge */}
-                        <div className="flex items-center gap-1.5 ml-auto md:ml-2">
-                          {searchMode === 'HYBRID' && (
-                            <span className="rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-mono font-medium">
-                              RRF: {item.rrfScore > 0 ? item.rrfScore.toFixed(4) : `Rank #${index + 1}`}
-                            </span>
-                          )}
-                          {searchMode === 'LEXICAL' && (
-                            <span className="rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 text-[10px] font-mono">
-                              Lexical: {item.lexicalScore > 0 ? `Score ${item.lexicalScore}` : `#${item.lexicalRank}`}
-                            </span>
-                          )}
-                          {searchMode === 'SEMANTIC' && (
-                            <span className="rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 text-[10px] font-mono">
-                              Semantic: {item.semanticScore > 0 ? `Score ${item.semanticScore}` : `#${item.semanticRank}`}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Signature / FQN */}
-                      <div className="font-mono text-xs text-slate-300 truncate bg-slate-950/70 rounded px-2.5 py-1 border border-slate-800/80">
-                        {sym.signature || sym.fqn}
-                      </div>
-
-                      {/* File Path & Line Range */}
-                      <div className="flex items-center gap-2 text-xs text-slate-400 font-mono pt-0.5">
-                        <FileCode className="h-3.5 w-3.5 text-slate-500" />
-                        <span className="text-slate-300">{sym.filePath}</span>
-                        <span>:lines {sym.startLine}-{sym.endLine}</span>
-                      </div>
-
-                      {sym.docstring && (
-                        <p className="text-xs text-slate-400 line-clamp-2 pt-1 italic">
-                          {sym.docstring}
-                        </p>
                       )}
                     </div>
 
-                    {/* Quick Jump Action Buttons */}
-                    <div className="flex sm:flex-row md:flex-col gap-2 shrink-0 pt-2 md:pt-0">
-                      <button
-                        onClick={() => navigate('/reuse')}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 px-3 py-1.5 text-xs font-semibold text-indigo-300 transition"
-                        title="Evaluate candidate component in Reuse-First Advisor"
-                      >
-                        <GitFork className="h-3.5 w-3.5" />
-                        <span>Evaluate Reuse</span>
-                      </button>
-
-                      <button
-                        onClick={() => navigate('/ai')}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 transition"
-                        title="Ground AI explanation against this evidence"
-                      >
-                        <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-                        <span>Explain with AI</span>
-                      </button>
+                    {/* Score indicators */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {searchMode === 'HYBRID' && (
+                        <span className="cm-tag-pill amber font-mono">
+                          RRF: {item.rrfScore.toFixed(3)}
+                        </span>
+                      )}
+                      {searchMode === 'LEXICAL' && (
+                        <span className="cm-tag-pill cyan font-mono">
+                          Lexical: Score {item.lexicalScore.toFixed(2)}
+                        </span>
+                      )}
+                      {searchMode === 'SEMANTIC' && (
+                        <span className="cm-tag-pill blue font-mono">
+                          Semantic: Score {item.semanticScore.toFixed(2)}
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {/* File & Line Provenance */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)', marginBottom: '10px' }}>
+                    <FileCode size={13} style={{ color: 'var(--ref-mute)' }} />
+                    <span style={{ color: 'var(--ref-ink-soft)' }}>{sym.filePath}</span>
+                    <span>:</span>
+                    <span style={{ color: '#ffffff' }}>Lines {sym.startLine}&ndash;{sym.endLine}</span>
+                    {sym.fqn && sym.fqn !== sym.name && (
+                      <>
+                        <span style={{ opacity: 0.3 }}>&bull;</span>
+                        <span style={{ color: 'var(--ref-mute)' }}>{sym.fqn}</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Compact Syntax Preview */}
+                  {sym.signature && (
+                    <div
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '8px',
+                        backgroundColor: '#070a12',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.78rem',
+                        color: '#94a3b8',
+                        overflowX: 'auto',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <span style={{ color: 'var(--accent-blue)' }}>{sym.visibility ? `${sym.visibility.toLowerCase()} ` : ''}</span>
+                      <span style={{ color: 'var(--ref-orange-3)' }}>{sym.signature}</span>
+                    </div>
+                  )}
+
+                  {/* Docstring if available */}
+                  {sym.docstring && (
+                    <div style={{ marginTop: '8px', fontSize: '0.76rem', color: 'var(--ref-mute)', lineHeight: 1.4 }}>
+                      {sym.docstring}
+                    </div>
+                  )}
                 </div>
               );
-            })
-          )}
-        </div>
-      )}
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

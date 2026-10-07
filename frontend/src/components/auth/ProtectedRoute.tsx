@@ -19,7 +19,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const isProtectedDeepLink = location.pathname !== '/' && location.pathname !== '/login';
+    return <Navigate to="/login" state={{ from: location, sessionExpired: isProtectedDeepLink }} replace />;
   }
 
   return children ? <>{children}</> : null;

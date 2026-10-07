@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useRepository } from '../context/RepositoryContext';
 import { NoRepoSelected } from '../components/common/NoRepoSelected';
 import { getAiHistory, explainEvidence } from '../api/ai';
-import { AiReasoningResponse } from '../types/ai';
+import { AiReasoningResponse, EvidenceItem } from '../types/ai';
 import {
-  BotMessageSquare,
   AlertTriangle,
-  CheckCircle2,
   Clock,
-  Cpu,
   Loader2,
   FileCode,
   Send,
   History,
+  Sparkles,
+  ShieldCheck,
+  Code2,
+  Brain,
+  HelpCircle,
 } from 'lucide-react';
 
 export const AiInsightsPage: React.FC = () => {
@@ -21,10 +23,19 @@ export const AiInsightsPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [history, setHistory] = useState<AiReasoningResponse[]>([]);
   const [currentResult, setCurrentResult] = useState<AiReasoningResponse | null>(null);
+  const [activeQuestion, setActiveQuestion] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnavailable, setIsUnavailable] = useState(false);
-  const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(null);
+  const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null);
+
+  const examplePrompts = [
+    'Where is authentication handled?',
+    'Which classes are most complex?',
+    'Can I reuse an existing implementation for payment processing?',
+    'What are the biggest architecture risks?',
+    'Which security findings should I investigate first?',
+  ];
 
   const fetchHistory = async (repoId: string) => {
     try {
@@ -32,6 +43,7 @@ export const AiInsightsPage: React.FC = () => {
       setHistory(res.content);
       if (res.content.length > 0 && !currentResult) {
         setCurrentResult(res.content[0]);
+        setActiveQuestion(res.content[0].summary || 'Analysis Synthesis');
       }
     } catch {
       // History fetch may be empty or unconfigured
@@ -44,22 +56,27 @@ export const AiInsightsPage: React.FC = () => {
     }
   }, [selectedRepo]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRepo || !query.trim()) return;
+  const runQuery = async (queryText: string) => {
+    if (!selectedRepo || !queryText.trim()) return;
 
     try {
       setLoading(true);
       setError(null);
       setIsUnavailable(false);
+      setActiveQuestion(queryText.trim());
+
       const res = await explainEvidence(selectedRepo.id, {
-        query: query.trim(),
+        query: queryText.trim(),
         limit: 8,
       });
       setCurrentResult(res);
       fetchHistory(selectedRepo.id);
     } catch (err: any) {
-      if (err.status === 503 || err.message?.includes('not configured') || err.message?.includes('unavailable')) {
+      if (
+        err.status === 503 ||
+        err.message?.includes('not configured') ||
+        err.message?.includes('unavailable')
+      ) {
         setIsUnavailable(true);
       } else {
         setError(err.message || 'AI explanation generation failed.');
@@ -67,6 +84,15 @@ export const AiInsightsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    runQuery(query);
+  };
+
+  const handleSelectExample = (prompt: string) => {
+    setQuery(prompt);
   };
 
   if (!selectedRepo) {
@@ -78,274 +104,458 @@ export const AiInsightsPage: React.FC = () => {
     );
   }
 
-  const selectedEvidence = currentResult?.evidence?.find((e) => e.evidenceId === selectedEvidenceId);
+  const isGrounded = currentResult ? currentResult.grounded && currentResult.citationCoverage >= 0.8 : false;
 
   return (
-    <div className="space-y-6" data-testid="ai-insights-page">
-      {/* Top Banner */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              <BotMessageSquare className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-white">Grounded AI Reasoning Layer</h1>
-                <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                  {selectedRepo.name}
-                </span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 uppercase tracking-wider">
-                  Downstream Layer
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Deterministic repository evidence remains authoritative. LLM responses cite verifiable static analysis symbols.
-              </p>
+    <div className="analysis-report-container relative" data-testid="ai-insights-page" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="cm-ambient-glow" style={{ top: -60, left: 100, opacity: 0.6 }} />
+      <div className="cm-ambient-glow-teal" style={{ top: 120, right: 60, opacity: 0.4 }} />
+
+      {/* ============ HEADER ============ */}
+      <header className="cm-clay-card p-6 relative overflow-hidden" style={{ borderRadius: '20px' }}>
+        <div className="analysis-header-context mb-3">
+          <span>CodeMind AI</span>
+          <span>/</span>
+          <span style={{ color: '#ffffff', fontWeight: 600 }}>{selectedRepo.name}</span>
+          <span style={{ opacity: 0.4 }}>&bull;</span>
+          <span className="cm-tag-pill cyan">Grounded Reasoning Layer</span>
+        </div>
+
+        <div className="analysis-header-main">
+          <div className="analysis-title-group">
+            <div className="cm-eyebrow mb-2">INTELLIGENT REASONING</div>
+            <h1 className="text-2xl font-bold tracking-tight text-white m-0">GROUNDED AI</h1>
+            <p style={{ margin: '6px 0 8px 0', fontSize: '0.9rem', color: 'var(--ref-ink-soft)' }}>
+              Ask questions about your repository using verified engineering evidence.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.74rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-blue)' }}>
+              <span>Deterministic repository evidence</span>
+              <span style={{ color: 'var(--ref-mute)' }}>&rarr;</span>
+              <span style={{ color: '#ffffff', fontWeight: 600 }}>AI interpretation</span>
             </div>
           </div>
         </div>
 
-        {/* Input Query Bar */}
-        <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask a question about the repository or requested functionality (e.g. How does error handling work?)..."
-              className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-            />
+        {/* Query Input Bar */}
+        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div
+              style={{
+                flex: 1,
+                minWidth: '280px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: 'rgba(7, 10, 18, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '999px',
+                padding: '0 18px',
+                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.5)',
+              }}
+            >
+              <HelpCircle size={18} style={{ color: 'var(--ref-mute)', marginRight: '10px', flexShrink: 0 }} />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask about this repository (e.g. Where is authentication handled?)..."
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontSize: '0.88rem',
+                  outline: 'none',
+                  padding: '14px 0',
+                }}
+              />
+            </div>
+
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 transition shadow"
+              className="cm-arrow-pill"
+              style={{ padding: '0 24px', fontSize: '0.85rem' }}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 size={16} className="animate-spin" />
                   <span>Grounding...</span>
                 </>
               ) : (
                 <>
-                  <Send className="h-4 w-4" />
-                  <span>Synthesize</span>
+                  <span className="cm-cta-dot" style={{ backgroundColor: '#06b6d4' }} />
+                  <span>Ask CodeMind</span>
+                  <span className="ref-ar">
+                    <Send size={12} />
+                  </span>
                 </>
               )}
             </button>
           </div>
-          <div className="text-[11px] text-slate-500">
-            CodeMind AI extracts relevant AST symbols and static evidence before invoking the reasoning model.
-          </div>
         </form>
-      </div>
+
+        {history.length > 0 && (
+          <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--ref-mute)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <History size={12} />
+              <span>Recent:</span>
+            </span>
+            {history.slice(0, 4).map((h, i) => (
+              <button
+                key={h.id || i}
+                type="button"
+                onClick={() => {
+                  setCurrentResult(h);
+                  setActiveQuestion(h.summary || 'Previous Inquiry');
+                }}
+                className="cm-tag-pill blue"
+                style={{
+                  cursor: 'pointer',
+                  maxWidth: '220px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={h.summary || 'Inquiry'}
+              >
+                {h.summary || 'Inquiry'}
+              </button>
+            ))}
+          </div>
+        )}
+      </header>
 
       {/* Unavailable State Notice */}
       {isUnavailable && (
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-5 text-xs text-amber-200 space-y-2">
-          <div className="flex items-center gap-2 font-semibold text-amber-300">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
+        <div style={{ padding: '16px 20px', borderRadius: '12px', backgroundColor: 'rgba(245, 139, 78, 0.08)', border: '1px solid rgba(245, 139, 78, 0.25)', color: '#fed7aa', fontSize: '0.82rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: 'var(--ref-orange-3)', marginBottom: '4px' }}>
+            <AlertTriangle size={16} />
             <span>LLM Provider Not Configured (503 Service Unavailable)</span>
           </div>
-          <p className="text-slate-300 leading-relaxed">
-            Deterministic static analysis, symbol indexing, and reuse scoring remain <strong>100% operational</strong>.
-            To enable grounded AI synthesis, set the <code className="px-1.5 py-0.5 rounded bg-slate-900 text-amber-300 font-mono">CODEMIND_LLM_API_KEY</code> environment variable on the server.
+          <p style={{ margin: 0, lineHeight: 1.5, color: '#fcd34d' }}>
+            Deterministic static analysis, symbol indexing, and architecture calculations remain 100% operational.
+            To enable Grounded AI synthesis, set the <code>CODEMIND_LLM_API_KEY</code> environment variable on the server.
           </p>
         </div>
       )}
 
       {error && (
-        <div className="rounded-xl border border-rose-800/50 bg-rose-950/40 p-4 text-xs text-rose-300 flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 shrink-0" />
+        <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <AlertTriangle size={16} style={{ flexShrink: 0 }} />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Active AI Reasoning Display */}
+      {/* ============ EMPTY STATE (When no question asked yet) ============ */}
+      {!currentResult && !loading && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Welcome Card */}
+          <div className="cm-clay-card text-center" style={{ padding: '36px 32px' }}>
+            <div className="cm-icon-tile mx-auto mb-4" style={{ width: '48px', height: '48px', background: 'rgba(232, 90, 43, 0.15)', color: '#f97316' }}>
+              <Sparkles size={24} />
+            </div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', margin: '0 0 8px 0' }}>
+              Grounded Repository Intelligence
+            </h2>
+            <p style={{ fontSize: '0.88rem', color: 'var(--ref-ink-soft)', maxWidth: '560px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+              Unlike generic chatbots, Grounded AI extracts deterministic AST symbols, complexity metrics, and quality findings from your repository before answering. Every claim must cite verified evidence.
+            </p>
+
+            {/* Prompt Starters */}
+            <div style={{ textAlign: 'left', maxWidth: '680px', margin: '0 auto' }}>
+              <div className="cm-eyebrow mb-2">
+                Example Questions
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {examplePrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleSelectExample(prompt)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 18px',
+                      borderRadius: '12px',
+                      backgroundColor: 'rgba(7, 10, 18, 0.7)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      color: '#ffffff',
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s ease',
+                    }}
+                    className="finding-row"
+                  >
+                    <span>{prompt}</span>
+                    <span style={{ color: 'var(--ref-orange-3)', fontSize: '0.74rem', fontFamily: 'var(--font-mono)' }}>Use prompt &rarr;</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* AI vs Deterministic Architectural Invariant */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+            <div className="cm-clay-card" style={{ padding: '20px', borderColor: 'rgba(56, 189, 248, 0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '8px' }}>
+                <Code2 size={16} />
+                <span>DETERMINISTIC EVIDENCE</span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--ref-mute)', margin: 0, lineHeight: 1.5 }}>
+                Authoritative ground truth: AST symbol declarations, McCabe cyclomatic complexity, Halstead maintainability scores, and static rule audits.
+              </p>
+            </div>
+
+            <div className="cm-clay-card" style={{ padding: '20px', borderColor: 'rgba(232, 90, 43, 0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#e85a2b', fontWeight: 700, fontSize: '0.85rem', marginBottom: '8px' }}>
+                <Brain size={16} />
+                <span>AI INTERPRETATION</span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--ref-mute)', margin: 0, lineHeight: 1.5 }}>
+                Downstream reasoning: natural-language explanation, architectural implications, and remediation guidance strictly citing deterministic facts.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ ANSWER LAYOUT (When a question is answered) ============ */}
       {currentResult && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-sm space-y-5">
-          {/* Telemetry Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 bg-slate-950 px-4 py-2.5 rounded-lg border border-slate-800">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1 font-mono text-indigo-400">
-                <Cpu className="h-3.5 w-3.5" />
-                {currentResult.provider}: {currentResult.model}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* 1. User Question Card */}
+          <div className="cm-clay-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <span className="cm-eyebrow mb-1">
+                User Question
               </span>
-              <span className="flex items-center gap-1 font-mono">
-                <Clock className="h-3.5 w-3.5 text-slate-500" />
-                {currentResult.latencyMs} ms
-              </span>
-              {currentResult.totalTokens && (
-                <span className="font-mono text-slate-400">
-                  Tokens: {currentResult.totalTokens}
-                </span>
-              )}
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', margin: '4px 0 0 0' }}>
+                &ldquo;{activeQuestion || query || 'Repository Analysis'}&rdquo;
+              </h3>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Citation coverage: {(currentResult.citationCoverage * 100).toFixed(0)}% &mdash; {currentResult.reasoning?.filter((r) => r.evidenceIds?.length > 0).length || 0}/{currentResult.reasoning?.length || 0} claims cite supplied evidence
+            {/* Grounding Status Indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span
+                className={isGrounded ? 'cm-tag-pill green font-mono' : 'cm-tag-pill amber font-mono'}
+              >
+                <ShieldCheck size={13} />
+                <span>{isGrounded ? 'GROUNDED' : 'PARTIALLY GROUNDED'}</span>
+              </span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>
+                {(currentResult.citationCoverage * 100).toFixed(0)}% Citation Coverage
               </span>
             </div>
           </div>
 
-          {/* Context Truncation Warning */}
-          {currentResult.contextTruncated && (
-            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-300 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span>
-                Evidence exceeded maximum context budget ({currentResult.contextChars} characters). Only highest-ranked evidence chunks were submitted to the LLM.
+          {/* 2. AI Interpretation Section */}
+          <div className="cm-clay-card" style={{ padding: '24px', borderColor: 'rgba(232, 90, 43, 0.3)', boxShadow: '0 12px 30px rgba(0, 0, 0, 0.5)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Brain size={18} style={{ color: '#e85a2b' }} />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                  AI INTERPRETATION
+                </h3>
+              </div>
+              <span style={{ fontSize: '0.7rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={12} />
+                <span>{currentResult.latencyMs}ms response time</span>
               </span>
             </div>
-          )}
 
-          {/* Executive Summary & Recommendation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Executive Interpretation
-              </div>
-              <p className="text-xs text-slate-200 leading-relaxed">
-                {currentResult.summary}
-              </p>
-            </div>
+            {/* Executive Synthesis */}
+            <p style={{ fontSize: '0.92rem', color: '#e2e8f0', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+              {currentResult.summary}
+            </p>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider text-indigo-400 flex items-center justify-between">
-                <span>Recommendation</span>
-                <span className="font-mono text-slate-400">
-                  Confidence: {(currentResult.confidence * 100).toFixed(0)}%
-                </span>
+            {/* Recommendation */}
+            {currentResult.recommendation && (
+              <div style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'rgba(7, 10, 18, 0.8)', border: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '20px' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--ref-orange-3)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
+                  Recommendation
+                </div>
+                <div style={{ fontSize: '0.84rem', color: '#ffffff', lineHeight: 1.5 }}>
+                  {currentResult.recommendation}
+                </div>
               </div>
-              <p className="text-xs text-slate-200 leading-relaxed">
-                {currentResult.recommendation}
-              </p>
-            </div>
+            )}
+
+            {/* Grounded Claims with Clickable Citations */}
+            {currentResult.reasoning && currentResult.reasoning.length > 0 && (
+              <div>
+                <div className="cm-eyebrow mb-2">
+                  Grounded Evidence Claims ({currentResult.reasoning.length}):
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {currentResult.reasoning.map((step, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        padding: '12px 14px',
+                        borderRadius: '10px',
+                        backgroundColor: 'rgba(7, 10, 18, 0.7)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <div style={{ fontSize: '0.82rem', color: '#ffffff', lineHeight: 1.5, flex: 1, minWidth: '240px' }}>
+                        <span style={{ color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)', marginRight: '8px' }}>
+                          {idx + 1}.
+                        </span>
+                        {step.claim}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {step.evidenceIds?.map((evId) => {
+                          const evItem = currentResult.evidence?.find((e) => e.evidenceId === evId);
+                          return (
+                            <button
+                              key={evId}
+                              type="button"
+                              onClick={() => setSelectedEvidence(evItem || null)}
+                              className="cm-tag-pill amber font-mono cursor-pointer"
+                              title="Click to view verified source evidence"
+                            >
+                              [{evId}]
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Grounded Evidence Claims */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Grounded Evidence Claims ({currentResult.reasoning?.length || 0})
-              </h4>
-              <span className="text-[11px] text-slate-500">
-                Click citation badges to view underlying source evidence
+          {/* 3. VERIFIED REPOSITORY EVIDENCE (Very Clearly Separated) */}
+          <div className="cm-clay-card" style={{ padding: '24px', borderColor: 'rgba(56, 189, 248, 0.3)', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-blue)', marginBottom: '4px' }}>
+                  <Code2 size={18} />
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                    VERIFIED REPOSITORY EVIDENCE
+                  </h3>
+                </div>
+                <p style={{ fontSize: '0.76rem', color: 'var(--ref-mute)', margin: 0 }}>
+                  Actual codebase artifacts retrieved from deterministic static analysis and cited by the reasoning layer.
+                </p>
+              </div>
+
+              <span className="cm-tag-pill cyan font-mono">
+                {currentResult.evidence?.length || 0} Provenance Records
               </span>
             </div>
 
-            <div className="space-y-2">
-              {currentResult.reasoning?.map((step, idx) => (
+            {/* Evidence Cards Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
+              {(currentResult.evidence || []).map((ev) => (
                 <div
-                  key={idx}
-                  className="rounded-lg border border-slate-800 bg-slate-950/60 p-3.5 flex items-start justify-between gap-4"
+                  key={ev.evidenceId}
+                  onClick={() => setSelectedEvidence(ev)}
+                  className="cm-clay-card finding-row"
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                  }}
+                  title="Click to inspect source lines"
                 >
-                  <div className="text-xs text-slate-200 leading-relaxed flex-1">
-                    <span className="text-slate-500 font-mono mr-2">{idx + 1}.</span>
-                    {step.claim}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span className="cm-tag-pill cyan font-mono">
+                        [{ev.evidenceId}] {ev.evidenceType}
+                      </span>
+                      <span style={{ fontSize: '0.68rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>
+                        Lines {ev.startLine}–{ev.endLine}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)', wordBreak: 'break-all' }}>
+                      {ev.symbolName || ev.filePath.split('/').pop()}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                      {ev.filePath}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {step.evidenceIds?.map((evId) => (
-                      <button
-                        key={evId}
-                        onClick={() => setSelectedEvidenceId(evId)}
-                        className="rounded px-2 py-0.5 text-[11px] font-mono font-semibold bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 transition"
-                      >
-                        [{evId}]
-                      </button>
-                    ))}
-                  </div>
+                  {ev.sanitizedSnippet && (
+                    <div style={{ padding: '8px 10px', borderRadius: '8px', backgroundColor: 'rgba(7, 10, 18, 0.9)', fontSize: '0.72rem', fontFamily: 'var(--font-mono)', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ev.sanitizedSnippet.split('\n')[0]}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Limitations */}
-          {currentResult.limitations && currentResult.limitations.length > 0 && (
-            <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-4 space-y-1.5">
-              <div className="text-xs font-semibold text-slate-400">Known Limitations &amp; Caveats:</div>
-              <ul className="list-disc list-inside space-y-1 text-xs text-slate-400">
-                {currentResult.limitations.map((lim, i) => (
-                  <li key={i}>{lim}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* History List */}
-      {history.length > 1 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 space-y-3">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            <History className="h-4 w-4" />
-            <span>Reasoning Request History ({history.length})</span>
-          </div>
-
-          <div className="space-y-2">
-            {history.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setCurrentResult(item)}
-                className={`rounded-lg border p-3 cursor-pointer transition text-xs flex items-center justify-between gap-4 ${
-                  currentResult?.id === item.id
-                    ? 'border-indigo-500 bg-slate-900 text-white font-medium'
-                    : 'border-slate-800 bg-slate-950/60 text-slate-300 hover:border-slate-700'
-                }`}
-              >
-                <div className="truncate flex-1">
-                  <span className="font-semibold text-slate-200">{item.requestType}</span>: {item.summary}
-                </div>
-                <div className="flex items-center gap-3 text-slate-500 font-mono shrink-0">
-                  <span>{item.latencyMs}ms</span>
-                  <span>{new Date(item.createdAt).toLocaleTimeString()}</span>
-                </div>
-              </div>
-            ))}
+          {/* 4. WHY THIS MATTERS */}
+          <div className="cm-clay-card" style={{ padding: '20px 22px' }}>
+            <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#ffffff', margin: '0 0 6px 0' }}>
+              Why This Matters
+            </h4>
+            <p style={{ fontSize: '0.82rem', color: 'var(--ref-ink-soft)', margin: 0, lineHeight: 1.6 }}>
+              Engineering decisions grounded in verifiable static analysis eliminate hallucinated architecture advice. By mapping claims directly to AST symbols, lines of code, and coupling metrics, CodeMind ensures that every recommendation is executable against your real repository.
+            </p>
           </div>
         </div>
       )}
 
-      {/* Evidence Inspection Modal */}
-      {selectedEvidenceId && selectedEvidence && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2">
-                <FileCode className="h-4 w-4 text-indigo-400" />
-                <span className="font-bold text-sm text-white font-mono">
-                  Evidence [{selectedEvidence.evidenceId}]
-                </span>
-                <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
-                  {selectedEvidence.evidenceType}
+      {/* ============ EVIDENCE MODAL ============ */}
+      {selectedEvidence && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div className="cm-clay-card" style={{ width: 'min(640px, 94vw)', borderRadius: '16px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(7, 10, 18, 0.85)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FileCode size={16} style={{ color: 'var(--accent-blue)' }} />
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>
+                  Evidence [{selectedEvidence.evidenceId}] &mdash; {selectedEvidence.evidenceType}
                 </span>
               </div>
               <button
-                onClick={() => setSelectedEvidenceId(null)}
-                className="text-slate-400 hover:text-white text-xs font-semibold px-2 py-1"
+                type="button"
+                onClick={() => setSelectedEvidence(null)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--ref-mute)', cursor: 'pointer', padding: '4px' }}
               >
-                &#x2715; Close
+                &#x2715;
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-slate-400 font-mono">
-              <div>File: <span className="text-white">{selectedEvidence.filePath}:{selectedEvidence.startLine}-{selectedEvidence.endLine}</span></div>
-              {selectedEvidence.symbolName && (
-                <div>Symbol: <span className="text-indigo-400">{selectedEvidence.symbolName}</span></div>
-              )}
-            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
+              <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', color: 'var(--ref-mute)' }}>
+                File: <strong style={{ color: '#ffffff' }}>{selectedEvidence.filePath}:{selectedEvidence.startLine}&ndash;{selectedEvidence.endLine}</strong>
+                {selectedEvidence.symbolName && (
+                  <div>Symbol: <span style={{ color: 'var(--ref-orange-3)' }}>{selectedEvidence.symbolName}</span></div>
+                )}
+              </div>
 
-            <div>
-              <div className="text-xs font-semibold text-slate-400 mb-1.5">Sanitized Snippet:</div>
-              <pre className="bg-slate-950 p-3.5 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 overflow-x-auto max-h-72">
-                {selectedEvidence.sanitizedSnippet}
-              </pre>
-            </div>
-
-            <div className="text-[11px] text-slate-500">
-              Evidence is backed by source-line provenance from repository static analysis.
+              <div className="code-snippet-box">
+                <div className="code-snippet-header">
+                  <span>Source Code Evidence</span>
+                  <span>Lines {selectedEvidence.startLine}&ndash;{selectedEvidence.endLine}</span>
+                </div>
+                <div className="code-snippet-content">
+                  {(selectedEvidence.sanitizedSnippet || '// No code snippet attached')
+                    .split('\n')
+                    .map((line, idx) => (
+                      <div key={idx} className="code-snippet-line">
+                        <span className="code-snippet-linenum">{selectedEvidence.startLine + idx}</span>
+                        <span className="code-snippet-text">{line || ' '}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -353,3 +563,5 @@ export const AiInsightsPage: React.FC = () => {
     </div>
   );
 };
+
+export default AiInsightsPage;

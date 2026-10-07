@@ -31,6 +31,8 @@ public class ArchitectureService {
     private final RelationshipRepository relationshipRepository;
     private final FileMetricsRepository fileMetricsRepository;
     private final ArchitectureAnalysisRepository architectureAnalysisRepository;
+    private final SecurityFindingRepository securityFindingRepository;
+    private final ArchitectureReportPdfService reportPdfService;
 
     private final DependencyGraphBuilder graphBuilder;
     private final CycleDetectionService cycleDetectionService;
@@ -46,6 +48,8 @@ public class ArchitectureService {
             RelationshipRepository relationshipRepository,
             FileMetricsRepository fileMetricsRepository,
             ArchitectureAnalysisRepository architectureAnalysisRepository,
+            SecurityFindingRepository securityFindingRepository,
+            ArchitectureReportPdfService reportPdfService,
             DependencyGraphBuilder graphBuilder,
             CycleDetectionService cycleDetectionService,
             PackageAnalysisService packageAnalysisService,
@@ -59,6 +63,8 @@ public class ArchitectureService {
         this.relationshipRepository = relationshipRepository;
         this.fileMetricsRepository = fileMetricsRepository;
         this.architectureAnalysisRepository = architectureAnalysisRepository;
+        this.securityFindingRepository = securityFindingRepository;
+        this.reportPdfService = reportPdfService;
         this.graphBuilder = graphBuilder;
         this.cycleDetectionService = cycleDetectionService;
         this.packageAnalysisService = packageAnalysisService;
@@ -249,6 +255,23 @@ public class ArchitectureService {
         }
 
         return hotspots;
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] generateArchitectureReportPdf(UUID repositoryId, UUID analysisId, UserEntity requester) {
+        RepositoryEntity repo = repositoryEntityRepository.findById(repositoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Repository", repositoryId));
+        validateReadAccess(repo, requester);
+
+        ArchitectureAnalysisEntity arch = architectureAnalysisRepository.findById(analysisId)
+                .filter(a -> a.getRepositoryId().equals(repositoryId))
+                .orElseThrow(() -> new ResourceNotFoundException("ArchitectureAnalysis", analysisId));
+
+        List<SymbolEntity> symbols = symbolRepository.findByAnalysisId(arch.getAnalysisId());
+        List<RelationshipEntity> relationships = relationshipRepository.findByAnalysisId(arch.getAnalysisId());
+        List<SecurityFindingEntity> securityFindings = securityFindingRepository.findByAnalysisId(arch.getAnalysisId());
+
+        return reportPdfService.generateArchitectureReportPdf(repo, arch, symbols, relationships, securityFindings);
     }
 
     private String toJson(Object obj) {

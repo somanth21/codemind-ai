@@ -16,8 +16,10 @@ export const SecurityPage: React.FC = () => {
   }
 
   return (
-    <div className="security-page space-y-6" data-testid="security-page">
+    <div className="feature-view-container relative space-y-6" data-testid="security-page">
+      <div className="cm-ambient-glow" style={{ top: -60, left: 100, opacity: 0.6 }} />
       <SecurityAnalysisView repositoryId={selectedRepo.id} />
     </div>
   );
 };
+

@@ -1,97 +1,112 @@
-# Uiverse Component Adaptation & Attribution Log
+# CodeMind AI — Uiverse Component Adaptations & Design System Reference
 
-**Document Version**: 1.0.0  
-**Phase**: Phase 11A.2 Product UI Redesign  
-**Standard**: CodeMind Unified Design System (`#090d16` canvas, cyan/indigo/ruby palette, WCAG 2.1 AA)
+This document tracks all UI components adopted from [Uiverse.io](https://uiverse.io/) into the CodeMind AI product experience, preserving open-source attribution, creator credits, and documenting adaptations made to fit CodeMind's dark developer workspace design system (`#070A12` / `#0D1220`).
 
 ---
 
-## Adaptation Policy & Ethics
-
-CodeMind adapts open-source UI primitives from [Uiverse.io](https://uiverse.io/) exclusively as functional component blueprints. Each component has been modified to fit CodeMind's technical aesthetic:
-- Color tokens aligned strictly to `--bg-primary` (`#090d16`), `--border-color` (`#1e293b`), and semantic accents.
-- Typography normalized to system sans-serif and `JetBrains Mono` / monospace for code symbols.
-- Motion tuned to avoid distraction; full `prefers-reduced-motion` compliance.
-- Keyboard navigation (`:focus-visible` outlines) and ARIA attributes added.
-- Zero extraneous external CSS/JS libraries imported.
+## 1. Terminal Action Buttons (`.cm-btn`, `.cm-btn-primary`, `.cm-btn-secondary`, `.cm-btn-glow`)
+* **Uiverse URL**: `https://uiverse.io/e-alvarez/great-termite-38` (and `https://uiverse.io/satyamchaudharydev/modern-button-54`)
+* **Component Name**: Elevated Terminal Button / Modern Gradient Pill
+* **Creator**: `e-alvarez` & `satyamchaudharydev`
+* **Original Technology**: Pure CSS & CSS Transitions
+* **Where Used in CodeMind**:
+  - Global navigation CTAs (`Navbar.tsx`, `LandingPage.tsx`)
+  - Form actions (`LoginPage.tsx`, `RegisterPage.tsx`, `ConnectRepositoryModal.tsx`)
+  - Dashboard workflow triggers (`DashboardPage.tsx`)
+* **Modifications Made**:
+  - Re-themed colors to CodeMind deep cyan/blue (`#0284c7`, `#0369a1`, `#38bdf8`) with subtle linear gradients and border highlights.
+  - Reduced animation duration to 150–200ms with snappy `cubic-bezier(0.16, 1, 0.3, 1)` easing.
+  - Added accessible keyboard focus rings (`:focus-visible`).
 
 ---
 
-## Component Catalog & Traceability
+## 2. Cyber Metric Cards (`.cm-card`, `.cm-card-interactive`, `.cm-card-corner-accent`)
+* **Uiverse URL**: `https://uiverse.io/vinodjangid07/brave-swan-31`
+* **Component Name**: Glass Cyber Card with Gradient Border Flare
+* **Creator**: `vinodjangid07`
+* **Original Technology**: CSS Flexbox & Pseudo-elements
+* **Where Used in CodeMind**:
+  - Top KPI Metric Cards on `DashboardPage.tsx` (LOC, Symbols, MI, Security findings)
+  - Research Pipeline Stage Nodes
+  - Authentication Card Wrappers (`LoginPage.tsx`, `RegisterPage.tsx`)
+  - Grounded AI reasoning panels (`AiInsightsPage.tsx`, `AiExplanationPanel.tsx`)
+* **Modifications Made**:
+  - Replaced high-opacity neon gradients with restrained 1px `#1D2638` / `rgba(255,255,255,0.07)` borders and `#0D1220` surface background.
+  - Added subtle cyan top-border flare on hover (`.cm-card-corner-accent`) without excessive glow.
+  - Constrained card heights to 110–140px for compact data density.
 
-### 1. Terminal Action Button
-- **Component**: Primary & Glow Action Buttons (`.cm-btn-primary`, `.cm-btn-glow`, `.cm-btn-secondary`)
-- **Source**: [https://uiverse.io/buttons/terminal-action](https://uiverse.io/buttons/terminal-action)
-- **Creator**: Community Contributor / DevTech
-- **Original Technology**: Pure CSS
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Replaced high-saturation neon with CodeMind electric cyan/sky gradient (`#0284c7` to `#0369a1`).
-  - Added inset 1px bevel highlight for physical button feel.
-  - Added `:focus-visible` 2px offset ring for WCAG 2.1 keyboard compliance.
-  - Added `.cm-btn-glow` variant using indigo (`rgba(99, 102, 241, 0.12)`) for Grounded AI actions.
+---
 
-### 2. Cyber Code Metric Card
-- **Component**: Interactive Metric & Inspection Cards (`.cm-card`, `.cm-card-interactive`)
-- **Source**: [https://uiverse.io/cards/cyber-metric](https://uiverse.io/cards/cyber-metric)
-- **Creator**: Community Contributor / DarkUI
-- **Original Technology**: Tailwind / CSS
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Deep charcoal surface (`#141b2d`) with `#1e293b` borders.
-  - Added top gradient corner-accent line (`.cm-card-corner-accent`) that reveals on hover.
-  - Added subtle -2px hover elevation with soft dark drop shadow (`0 12px 24px -10px rgba(0, 0, 0, 0.5)`).
-  - Enforced monospace typography on quantitative metric values.
+## 3. Quantum Orbital Loader (`.cm-loader-orbit`, `.cm-loader-orbit-ring`)
+* **Uiverse URL**: `https://uiverse.io/fedeperin/quantum-orbit-loader`
+* **Component Name**: Multi-axis Orbital Spinner
+* **Creator**: `fedeperin`
+* **Original Technology**: CSS 3D Keyframe Animations
+* **Where Used in CodeMind**:
+  - Form submitting spinners (`LoginPage.tsx`, `RegisterPage.tsx`)
+  - Modal ingestion pipeline indicators (`ConnectRepositoryModal.tsx`)
+* **Modifications Made**:
+  - Scaled down from 80px to 16px/24px inline badges.
+  - Colored rings using CodeMind palette (cyan `#06b6d4`, indigo `#6366f1`, blue `#38bdf8`).
+  - Added `prefers-reduced-motion` fallbacks to respect user accessibility settings.
 
-### 3. Quantum Orbital Loader
-- **Component**: Multi-Ring Progress Loader (`.cm-loader-orbit`, `.cm-loader-orbit-ring`)
-- **Source**: [https://uiverse.io/loaders/quantum-pulse](https://uiverse.io/loaders/quantum-pulse)
-- **Creator**: Community Contributor / CyberLoad
-- **Original Technology**: CSS Keyframes
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Configured 3 concentric rings with cyan, indigo, and sky blue accents representing the AST, AI, and Ingestion pipelines.
-  - Compact size (24px default) suitable for inline button and header placements.
-  - Added media query `@media (prefers-reduced-motion: reduce)` disabling spin and showing a steady glow.
+---
 
-### 4. Monospace Terminal Input Field
-- **Component**: Developer Input Field (`.cm-input-wrapper`, `.cm-input-dev`)
-- **Source**: [https://uiverse.io/inputs/terminal-glow](https://uiverse.io/inputs/terminal-glow)
-- **Creator**: Community Contributor / TerminalDev
-- **Original Technology**: Pure CSS
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Integrated leading icon slot with synchronized focus color transitions.
-  - Monospace font (`JetBrains Mono`, `Fira Code`) for GitHub URLs, query terms, and file paths.
-  - Replaced jarring full-screen neon glow with restrained 3px ring (`rgba(56, 189, 248, 0.15)`).
+## 4. Monospace Terminal Input (`.cm-input-dev`, `.cm-input-wrapper`)
+* **Uiverse URL**: `https://uiverse.io/Yaya12085/cyber-terminal-input`
+* **Component Name**: Glowing Developer Input
+* **Creator**: `Yaya12085`
+* **Original Technology**: CSS Form Styling
+* **Where Used in CodeMind**:
+  - Authentication forms (`LoginPage.tsx`, `RegisterPage.tsx`)
+  - Command palette search trigger (`Navbar.tsx`)
+  - Repository URL input (`ConnectRepositoryModal.tsx`)
+  - Symbol query search (`RepositorySearchView.tsx`)
+* **Modifications Made**:
+  - Toned down bright neon border to dark slate `#1e293b` with `#38bdf8` focus ring and 3px soft shadow.
+  - Integrated `lucide-react` icon slot with dynamic icon color transitions on focus.
+  - Set monospace/system typography hierarchy for code precision.
 
-### 5. Stepper Status Badge & Pill
-- **Component**: Repository Pipeline Status Badges (`.cm-status-pill`)
-- **Source**: [https://uiverse.io/badges/stepper-pill](https://uiverse.io/badges/stepper-pill)
-- **Creator**: Community Contributor / DevBadges
-- **Original Technology**: CSS
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Unified uppercase monospace styling (`.cm-status-pill-ready`, `.cm-status-pill-ingesting`, `.cm-status-pill-failed`, `.cm-status-pill-deterministic`, `.cm-status-pill-ai`).
-  - Distinctive color coding: Cyan for AST/metrics, Emerald for Verified/Ready, Ruby for Security blocks, Amber for Ingesting.
+---
 
-### 6. Dual-Mode Segmented Control
-- **Component**: Sliding Segmented Switch (`.cm-segmented-control`, `.cm-segment-btn`)
-- **Source**: [https://uiverse.io/toggles/segmented-tab](https://uiverse.io/toggles/segmented-tab)
-- **Creator**: Community Contributor / MinimalTabs
-- **Original Technology**: CSS / Flexbox
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Embedded in repository connection modal (GitHub vs ZIP Archive) and search view (Hybrid / Lexical / Semantic).
-  - Smooth 150ms active pill background transition.
+## 5. Stepper Status Badges & Pills (`.cm-status-pill-*`)
+* **Uiverse URL**: `https://uiverse.io/Gaurav-Rana-pytest/minimal-pill-badge`
+* **Component Name**: Status Indicator Tag
+* **Creator**: `Gaurav-Rana-pytest`
+* **Original Technology**: CSS Pill Badges
+* **Where Used in CodeMind**:
+  - Sidebar AI / Admin tags (`Sidebar.tsx`)
+  - Repository status flags (READY / INGESTING / FAILED)
+  - Research invariant indicator ("DETERMINISTIC FIRST", "VERIFIED CITATION")
+* **Modifications Made**:
+  - Standardized font family to `JetBrains Mono` / monospace.
+  - Coded semantic colorways: Emerald (`#10b981`), Amber (`#f59e0b`), Ruby (`#ef4444`), Cyan (`#06b6d4`), and Indigo (`#6366f1`).
+  - Subtle translucent backgrounds (`rgba(..., 0.12)`) and 1px crisp borders.
 
-### 7. Code Flyout Tooltip
-- **Component**: Line Provenance & Evidence Tooltip (`.cm-tooltip-wrapper`, `.cm-tooltip`)
-- **Source**: [https://uiverse.io/tooltips/dark-glass](https://uiverse.io/tooltips/dark-glass)
-- **Creator**: Community Contributor / GlassTooltip
-- **Original Technology**: Pure CSS
-- **License**: MIT
-- **CodeMind Adaptation**:
-  - Used for citation verification (`PaymentService.java:L42-68`) and CWE rule previews.
-  - Opaque `#0b1120` dark surface ensuring text readability over complex graphs and tables.
-  - Focus-within support for screen readers and keyboard users.
+---
+
+## 6. Dual-Mode Segmented Control (`.cm-segmented-control`, `.cm-segment-btn`)
+* **Uiverse URL**: `https://uiverse.io/alexruix/segmented-pill-tabs`
+* **Component Name**: Dark Segmented Switcher
+* **Creator**: `alexruix`
+* **Original Technology**: CSS Flex Tabs
+* **Where Used in CodeMind**:
+  - Repository Ingestion modal tab switcher (GitHub Primary vs Upload ZIP)
+  - Search view filter mode switcher (Hybrid / Lexical / Semantic)
+* **Modifications Made**:
+  - Refined to Linear/Raycast style dark background (`#0e1322`) with inset padding.
+  - Smooth active tab background transitions.
+
+---
+
+## 7. Glass Command Palette & Flyout Tooltips (`.cm-tooltip`, `.cm-command-bar`)
+* **Uiverse URL**: `https://uiverse.io/Pradeepshelke/dark-glass-tooltip`
+* **Component Name**: Floating Glass Flyout
+* **Creator**: `Pradeepshelke`
+* **Original Technology**: CSS Tooltips
+* **Where Used in CodeMind**:
+  - Top navigation bar Command Palette (Ctrl+K trigger)
+  - Citation evidence hover badges
+* **Modifications Made**:
+  - Monospace font rendering for evidence code line-range previews.
+  - `#0b1120` solid surface with `rgba(255,255,255,0.07)` border and soft backdrop blur.

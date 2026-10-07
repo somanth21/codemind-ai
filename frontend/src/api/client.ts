@@ -13,15 +13,27 @@ export class ApiError extends Error {
 const TOKEN_KEY = 'codemind_auth_token';
 
 export const getStoredToken = (): string | null => {
-  return localStorage.getItem(TOKEN_KEY);
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
 };
 
 export const setStoredToken = (token: string): void => {
-  localStorage.setItem(TOKEN_KEY, token);
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // localStorage might be blocked or full
+  }
 };
 
 export const clearStoredToken = (): void => {
-  localStorage.removeItem(TOKEN_KEY);
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // Ignore error
+  }
 };
 
 export async function apiClient<T>(
@@ -56,6 +68,26 @@ export async function apiClient<T>(
         detail: `Request failed with HTTP status ${response.status}`,
       };
     }
+
+    // When an authenticated request fails with 401 Unauthorized,
+    // handle token expiration cleanly: clear stale token and notify application.
+    if (response.status === 401) {
+      const isAuthEndpoint =
+        endpoint.includes('/api/v1/auth/login') ||
+        endpoint.includes('/api/v1/auth/register');
+
+      if (!isAuthEndpoint) {
+        clearStoredToken();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('codemind:unauthorized', {
+              detail: { endpoint, status: 401 },
+            })
+          );
+        }
+      }
+    }
+
     throw new ApiError(errorDetail);
   }
 
@@ -65,3 +97,4 @@ export async function apiClient<T>(
 
   return response.json();
 }
+

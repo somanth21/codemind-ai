@@ -20,7 +20,9 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [status, setStatus] = useState<AuthStatus>('LOADING');
+  const [status, setStatus] = useState<AuthStatus>(() => {
+    return getStoredToken() ? 'LOADING' : 'UNAUTHENTICATED';
+  });
 
   const refreshUser = useCallback(async () => {
     const token = getStoredToken();
@@ -31,15 +33,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const currentUser = await authApi.getCurrentUser();
+      // 3-second safety timeout so auth check never hangs the UI
+      const userPromise = authApi.getCurrentUser();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Auth check timeout')), 3000)
+      );
+      const currentUser = await Promise.race([userPromise, timeoutPromise]);
       setUser(currentUser);
       setStatus('AUTHENTICATED');
     } catch {
-      // 401 on /me simply means invalid/expired token -> establish unauthenticated state silently
+      // On error/expired token/timeout -> establish unauthenticated state silently
       clearStoredToken();
       setUser(null);
       setStatus('UNAUTHENTICATED');
     }
+  }, []);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearStoredToken();
+      setUser(null);
+      setStatus('UNAUTHENTICATED');
+    };
+
+    window.addEventListener('codemind:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('codemind:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   useEffect(() => {

@@ -19,9 +19,27 @@ import {
   Activity,
   Plus,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useRepository } from '../context/RepositoryContext';
 import { AnalysisDashboard } from '../components/analysis/AnalysisDashboard';
 
 export const RepositoriesPage: React.FC = () => {
+  let isAuthenticated = true;
+  try {
+    const auth = useAuth();
+    isAuthenticated = auth.isAuthenticated;
+  } catch {
+    // Fallback for isolated unit tests
+  }
+
+  let refreshGlobalRepos: (() => Promise<void>) | null = null;
+  try {
+    const repoCtx = useRepository();
+    refreshGlobalRepos = repoCtx.refreshRepositories;
+  } catch {
+    // Fallback for isolated unit tests
+  }
+
   const [repositories, setRepositories] = useState<RepositorySummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -50,12 +68,20 @@ export const RepositoriesPage: React.FC = () => {
   const [analysisRepoName, setAnalysisRepoName] = useState<string>('');
 
   const fetchRepositories = async () => {
+    if (!isAuthenticated) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setErrorMsg(null);
       const list = await repositoryApi.list();
       setRepositories(list);
     } catch (err) {
       if (err instanceof ApiError) {
+        if (err.problemDetail.status === 401) {
+          return;
+        }
         setErrorMsg(err.problemDetail.detail || 'Failed to load repositories');
       } else {
         setErrorMsg('Error connecting to repository service.');
@@ -66,8 +92,12 @@ export const RepositoriesPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchRepositories();
-  }, []);
+    if (isAuthenticated) {
+      fetchRepositories();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +118,9 @@ export const RepositoriesPage: React.FC = () => {
       const fileInput = document.getElementById('repo-file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
       await fetchRepositories();
+      if (refreshGlobalRepos) {
+        await refreshGlobalRepos();
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         setErrorMsg(err.problemDetail.detail || err.problemDetail.title || 'Ingestion failed');
@@ -110,6 +143,9 @@ export const RepositoriesPage: React.FC = () => {
         closeExplorer();
       }
       await fetchRepositories();
+      if (refreshGlobalRepos) {
+        await refreshGlobalRepos();
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         setErrorMsg(err.problemDetail.detail || 'Failed to delete repository');
@@ -175,83 +211,100 @@ export const RepositoriesPage: React.FC = () => {
   };
 
   return (
-    <div className="repos-page" style={{ maxWidth: '1350px', margin: '0 auto' }}>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <h1 className="page-title" style={{ fontSize: '1.75rem', fontWeight: 800 }}>Repository Management</h1>
-          <p className="page-description">GitHub Ingestion Pipeline &amp; Secure Isolated Workspaces</p>
-        </div>
+    <div className="feature-view-container cm-canvas-grain space-y-6 relative overflow-hidden">
+      <div className="cm-ambient-glow" />
+      <div className="cm-ambient-glow-teal" />
 
-        <button
-          onClick={() => setIsConnectModalOpen(true)}
-          className="cm-btn cm-btn-primary"
-        >
-          <Plus size={16} />
-          <span>Connect Repository</span>
-        </button>
+      <div className="cm-clay-card relative z-10" style={{ padding: '24px 28px' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="cm-eyebrow">
+              WORKSPACE REPOSITORIES &bull; INGESTION PIPELINE
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Repository Management</h1>
+            <p className="text-sm text-slate-400 mt-1">GitHub Streaming Pipeline &amp; Secure Isolated Workspaces</p>
+          </div>
+
+          <button
+            onClick={() => setIsConnectModalOpen(true)}
+            className="cm-arrow-pill cm-arrow-pill-primary shrink-0"
+          >
+            <span>Connect Repository</span>
+            <span className="cm-cta-dot">
+              <Plus size={14} />
+            </span>
+          </button>
+        </div>
       </div>
 
       {errorMsg && (
-        <div className="alert-error" role="alert" style={{ marginBottom: '20px' }}>
+        <div className="alert-error relative z-10" role="alert" style={{ marginBottom: '20px' }}>
           <AlertCircle size={18} />
           <span>{errorMsg}</span>
         </div>
       )}
 
       {uploadSuccess && (
-        <div className="alert-success" role="alert" style={{ marginBottom: '20px' }}>
+        <div className="alert-success relative z-10" role="alert" style={{ marginBottom: '20px' }}>
           <CheckCircle2 size={18} />
           <span>{uploadSuccess}</span>
         </div>
       )}
 
       {/* GitHub & ZIP Quick Ingestion Card */}
-      <div className="cm-card" style={{ marginBottom: '28px' }}>
-        <div className="cm-card-corner-accent" style={{ opacity: 1 }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+      <div className="cm-clay-card relative z-10" style={{ padding: '24px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
           <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <FolderGit2 size={20} color="var(--accent-blue)" />
+            <span className="cm-icon-tile" style={{ width: '32px', height: '32px' }}>
+              <FolderGit2 size={18} />
+            </span>
             <span>Connect a Repository</span>
           </h2>
-          <span className="cm-status-pill cm-status-pill-deterministic">Phase 11A.2</span>
+          <span className="cm-tag-pill cm-tag-pill-cyan">Phase 11A.2</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '10px' }}>
           {/* GitHub Action Banner */}
           <div
             onClick={() => setIsConnectModalOpen(true)}
-            className="cm-card cm-card-interactive"
-            style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-prominent)', padding: '20px', cursor: 'pointer' }}
+            className="cm-clay-card"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '22px', cursor: 'pointer' }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-              <FolderGit2 size={24} color="var(--accent-blue)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <span className="cm-icon-tile" style={{ width: '38px', height: '38px' }}>
+                <FolderGit2 size={20} />
+              </span>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>GitHub Ingestion (Primary)</h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Public repository streaming via HTTPS</span>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>GitHub Ingestion (Primary)</h3>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Public repository streaming via HTTPS</span>
               </div>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 14px 0' }}>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '0 0 16px 0', lineHeight: 1.5 }}>
               Directly stream any public repository by URL (e.g. <code>https://github.com/owner/repo</code>).
             </p>
-            <button type="button" className="cm-btn cm-btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-              Connect GitHub URL &rarr;
+            <button type="button" className="cm-arrow-pill" style={{ padding: '6px 8px 6px 14px', fontSize: '0.8rem' }}>
+              <span>Connect GitHub URL</span>
+              <span className="cm-cta-dot" style={{ width: '24px', height: '24px', fontSize: '0.8rem' }}>&rarr;</span>
             </button>
           </div>
 
           {/* Quick ZIP Upload (Accessible for tests and fallback) */}
-          <div style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <Upload size={20} color="var(--accent-cyan)" />
-              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}>Select ZIP Archive</h3>
+          <div className="cm-clay-card" style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <span className="cm-icon-tile" style={{ width: '38px', height: '38px', color: '#06b6d4' }}>
+                <Upload size={18} />
+              </span>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>Select ZIP Archive</h3>
             </div>
             <form onSubmit={handleUpload}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <input
                   id="repo-file-input"
                   type="file"
                   accept=".zip"
                   onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
                   className="file-input"
+                  style={{ borderRadius: '10px' }}
                 />
                 <input
                   id="repo-name-input"
@@ -260,21 +313,28 @@ export const RepositoriesPage: React.FC = () => {
                   value={repoName}
                   onChange={(e) => setRepoName(e.target.value)}
                   className="cm-input-dev"
-                  style={{ paddingLeft: '12px' }}
+                  style={{ paddingLeft: '14px', borderRadius: '10px' }}
                 />
                 <button
                   type="submit"
                   disabled={isUploading || !uploadFile}
-                  className="cm-btn cm-btn-secondary"
-                  style={{ padding: '8px 16px', alignSelf: 'flex-start' }}
+                  className="cm-arrow-pill"
+                  style={{ alignSelf: 'flex-start', padding: '6px 8px 6px 16px' }}
                 >
                   {isUploading ? (
                     <>
-                      <Loader2 size={14} className="spinner" />
                       <span>Ingesting...</span>
+                      <span className="cm-cta-dot" style={{ width: '24px', height: '24px' }}>
+                        <Loader2 size={13} className="spinner" />
+                      </span>
                     </>
                   ) : (
-                    <span>Upload &amp; Ingest ZIP</span>
+                    <>
+                      <span>Upload &amp; Ingest ZIP</span>
+                      <span className="cm-cta-dot" style={{ width: '24px', height: '24px' }}>
+                        <Upload size={13} />
+                      </span>
+                    </>
                   )}
                 </button>
               </div>
@@ -284,13 +344,15 @@ export const RepositoriesPage: React.FC = () => {
       </div>
 
       {/* Repositories Table */}
-      <div className="cm-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FolderGit2 size={18} color="var(--accent-blue)" />
+      <div className="cm-clay-card relative z-10" style={{ padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span className="cm-icon-tile" style={{ width: '32px', height: '32px' }}>
+              <FolderGit2 size={18} />
+            </span>
             <span>Ingested Repositories ({repositories.length})</span>
           </h2>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+          <span className="cm-tag-pill cm-tag-pill-cyan">
             Sandbox Isolation Active
           </span>
         </div>
@@ -307,9 +369,10 @@ export const RepositoriesPage: React.FC = () => {
           <div style={{ textAlign: 'center', padding: '48px 20px', color: 'var(--text-muted)' }}>
             <FolderGit2 size={40} style={{ opacity: 0.3, marginBottom: '12px' }} />
             <p style={{ margin: 0, fontSize: '0.95rem' }}>No repositories connected yet.</p>
-            <p style={{ margin: '6px 0 16px 0', fontSize: '0.85rem' }}>Connect a public GitHub repository or upload a local archive to start analysis.</p>
-            <button onClick={() => setIsConnectModalOpen(true)} className="cm-btn cm-btn-primary">
-              Connect Repository
+            <p style={{ margin: '6px 0 20px 0', fontSize: '0.85rem' }}>Connect a public GitHub repository or upload a local archive to start analysis.</p>
+            <button onClick={() => setIsConnectModalOpen(true)} className="cm-arrow-pill cm-arrow-pill-primary">
+              <span>Connect Repository</span>
+              <span className="cm-cta-dot"><Plus size={14} /></span>
             </button>
           </div>
         ) : (
@@ -331,15 +394,15 @@ export const RepositoriesPage: React.FC = () => {
                   <tr key={repo.id}>
                     <td style={{ fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{repo.name}</td>
                     <td>
-                      <span className="cm-status-pill cm-status-pill-deterministic" style={{ fontSize: '0.65rem' }}>
+                      <span className="cm-tag-pill cm-tag-pill-blue" style={{ fontSize: '0.7rem' }}>
                         {repo.sourceType || 'LOCAL_ZIP'}
                       </span>
                     </td>
                     <td>
-                      <span className={`cm-status-pill ${
-                        repo.status === 'READY' ? 'cm-status-pill-ready' :
-                        repo.status === 'INGESTING' ? 'cm-status-pill-ingesting' :
-                        'cm-status-pill-failed'
+                      <span className={`cm-tag-pill ${
+                        repo.status === 'READY' ? 'cm-tag-pill-green' :
+                        repo.status === 'INGESTING' ? 'cm-tag-pill-amber' :
+                        'cm-tag-pill-red'
                       }`}>
                         {repo.status === 'READY' && <CheckCircle2 size={12} />}
                         {repo.status === 'INGESTING' && <Clock size={12} />}
@@ -363,7 +426,7 @@ export const RepositoriesPage: React.FC = () => {
                               }}
                               className="btn-action view"
                               title="Deterministic Static Analysis"
-                              style={{ borderColor: 'rgba(99, 102, 241, 0.4)', color: '#818cf8' }}
+                              style={{ borderColor: 'rgba(99, 102, 241, 0.4)', color: '#818cf8', borderRadius: '999px', padding: '4px 10px' }}
                             >
                               <Activity size={14} />
                               <span>Analysis</span>
@@ -372,6 +435,7 @@ export const RepositoriesPage: React.FC = () => {
                               onClick={() => handleOpenExplorer(repo)}
                               className="btn-action view"
                               title="Explore Tree & Files"
+                              style={{ borderRadius: '999px', padding: '4px 10px' }}
                             >
                               <Eye size={14} />
                               <span>Explorer</span>
@@ -382,6 +446,7 @@ export const RepositoriesPage: React.FC = () => {
                           onClick={() => handleDelete(repo.id, repo.name)}
                           className="btn-action delete"
                           title="Delete Repository"
+                          style={{ borderRadius: '50%', width: '30px', height: '30px', padding: 0, display: 'inline-grid', placeItems: 'center' }}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -395,6 +460,7 @@ export const RepositoriesPage: React.FC = () => {
         )}
       </div>
 
+
       {/* Connect Repository Modal */}
       <ConnectRepositoryModal
         isOpen={isConnectModalOpen}
@@ -402,6 +468,9 @@ export const RepositoriesPage: React.FC = () => {
         onSuccess={async (name) => {
           setUploadSuccess(`Repository "${name}" connected successfully.`);
           await fetchRepositories();
+          if (refreshGlobalRepos) {
+            await refreshGlobalRepos();
+          }
         }}
       />
 

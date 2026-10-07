@@ -35,6 +35,8 @@ public class EvidenceSelectionService {
     private final SecretFindingRepository secretFindingRepository;
     private final SecurityFindingRepository securityFindingRepository;
     private final ArchitectureAnalysisRepository architectureAnalysisRepository;
+    private final AnalysisRunRepository analysisRunRepository;
+    private final RepositoryEntityRepository repositoryEntityRepository;
     private final PathTraversalGuard pathTraversalGuard;
     private final SandboxProperties sandboxProperties;
 
@@ -45,6 +47,8 @@ public class EvidenceSelectionService {
             SecretFindingRepository secretFindingRepository,
             SecurityFindingRepository securityFindingRepository,
             ArchitectureAnalysisRepository architectureAnalysisRepository,
+            AnalysisRunRepository analysisRunRepository,
+            RepositoryEntityRepository repositoryEntityRepository,
             PathTraversalGuard pathTraversalGuard,
             SandboxProperties sandboxProperties
     ) {
@@ -54,6 +58,8 @@ public class EvidenceSelectionService {
         this.secretFindingRepository = secretFindingRepository;
         this.securityFindingRepository = securityFindingRepository;
         this.architectureAnalysisRepository = architectureAnalysisRepository;
+        this.analysisRunRepository = analysisRunRepository;
+        this.repositoryEntityRepository = repositoryEntityRepository;
         this.pathTraversalGuard = pathTraversalGuard;
         this.sandboxProperties = sandboxProperties;
     }
@@ -272,7 +278,9 @@ public class EvidenceSelectionService {
     }
 
     /**
-     * Extracts and sanitizes evidence chunks for arbitrary symbol / evidence queries.
+     * Extracts and sanitizes evidence chunks for arbitrary repository queries.
+     * Incorporates repository & architecture overview, keyword matching, domain findings,
+     * and representative code snippets so any query has grounded evidence.
      */
     public List<EvidenceChunk> selectEvidenceForQuery(
             UUID repositoryId,
@@ -282,22 +290,231 @@ public class EvidenceSelectionService {
     ) {
         List<EvidenceChunk> chunks = new ArrayList<>();
         int counter = 1;
+        int maxChunks = limit > 0 ? Math.min(limit, 5) : 5;
 
         List<SymbolEntity> symbols = symbolRepository.findByAnalysisId(analysisId);
+        RepositoryEntity repo = repositoryEntityRepository != null ? repositoryEntityRepository.findById(repositoryId).orElse(null) : null;
+        AnalysisRunEntity run = analysisRunRepository != null ? analysisRunRepository.findById(analysisId).orElse(null) : null;
+        ArchitectureAnalysisEntity arch = architectureAnalysisRepository != null
+                ? architectureAnalysisRepository.findFirstByRepositoryIdAndAnalysisIdOrderByCreatedAtDesc(repositoryId, analysisId)
+                    .or(() -> architectureAnalysisRepository.findFirstByRepositoryIdOrderByCreatedAtDesc(repositoryId))
+                    .orElse(null)
+                : null;
+
+        // 1. Synthesize Repository & Architecture Overview Chunk (E1)
+        StringBuilder overviewSb = new StringBuilder();
+        overviewSb.append(String.format("Repository: %s (Source: %s)\n",
+                repo != null ? repo.getName() : "Unknown",
+                repo != null ? repo.getSourceType() : "LOCAL"));
+        if (run != null) {
+            overviewSb.append(String.format("Authoritative Deterministic Metrics:\n- Physical LOC: %,d\n- Analyzed Files: %d (Skipped: %d)\n- AST Classes: %d\n- AST Methods: %d\n- Average Cyclomatic Complexity: %.1f\n- Maintainability Index: %.1f / 100\n",
+                    run.getTotalLoc(), run.getFilesAnalyzed(), run.getFilesSkipped(), run.getTotalClasses(), run.getTotalMethods(), run.getAverageComplexity(), run.getMaintainabilityIndex()));
+        }
+        if (arch != null) {
+            overviewSb.append(String.format("Architecture Analysis:\n- Dependency Cycles: %d\n- Architecture Smells: %d\n",
+                    arch.getCycleCount(), arch.getSmellCount()));
+        }
+
+        Set<String> packageSet = new TreeSet<>();
+        for (SymbolEntity s : symbols) {
+            if (s.getFilePath() != null && s.getFilePath().contains("/")) {
+                String dir = s.getFilePath().substring(0, s.getFilePath().lastIndexOf("/"));
+                packageSet.add(dir);
+            }
+        }
+        if (!packageSet.isEmpty()) {
+            overviewSb.append("Key Packages / Directories:\n");
+            int pkgCount = 0;
+            for (String pkg : packageSet) {
+                overviewSb.append("- ").append(pkg).append("\n");
+                if (++pkgCount >= 8) break;
+            }
+        }
+
+        chunks.add(new EvidenceChunk(
+                "E" + (counter++),
+                repositoryId,
+                analysisId,
+                "repository/overview",
+                repo != null ? repo.getName() : "RepositoryOverview",
+                1,
+                1,
+                sanitizeSnippet(overviewSb.toString()),
+                "REPOSITORY_ARCHITECTURE_OVERVIEW",
+                1.0
+        ));
+
         String lowerQuery = query != null ? query.toLowerCase() : "";
 
-        List<SymbolEntity> matched = symbols.stream()
-                .filter(s -> s.getName().toLowerCase().contains(lowerQuery)
-                        || (s.getSignature() != null && s.getSignature().toLowerCase().contains(lowerQuery))
-                        || s.getFilePath().toLowerCase().contains(lowerQuery))
-                .limit(limit > 0 ? limit : 5)
-                .toList();
+        // 2. Domain-specific findings augmentation
+        boolean isSecurityQuery = lowerQuery.matches(".*(secur|vuln|cve|owasp|secret|token|password|leak|inject|xss|csrf|risk|safe).*");
+        boolean isArchQuery = lowerQuery.matches(".*(arch|design|structur|pattern|hotspot|cycle|smell|layer|coupling|modular).*");
+        boolean isQualityQuery = lowerQuery.matches(".*(qualit|complex|maintainab|smell|debt|refactor|clean).*");
 
-        for (SymbolEntity s : matched) {
+        if (isSecurityQuery && securityFindingRepository != null) {
+            List<SecurityFindingEntity> secFindings = securityFindingRepository.findByAnalysisId(analysisId);
+            for (int i = 0; i < Math.min(2, secFindings.size()) && chunks.size() < maxChunks; i++) {
+                SecurityFindingEntity f = secFindings.get(i);
+                String snippet = String.format("Rule: %s [%s]\nCategory: %s\nMessage: %s\nRemediation: %s",
+                        f.getRuleId(), f.getSeverity(), f.getCategory(), f.getMessage(), f.getRemediation());
+                chunks.add(new EvidenceChunk(
+                        "E" + (counter++),
+                        repositoryId,
+                        analysisId,
+                        f.getFilePath(),
+                        f.getRuleId(),
+                        f.getStartLine(),
+                        f.getEndLine(),
+                        sanitizeSnippet(snippet),
+                        "SECURITY_FINDING_" + f.getSeverity(),
+                        0.95
+                ));
+            }
+        }
+
+        if (isArchQuery && arch != null && chunks.size() < maxChunks) {
+            if (arch.getCyclesJson() != null && !arch.getCyclesJson().isBlank() && arch.getCycleCount() > 0) {
+                chunks.add(new EvidenceChunk(
+                        "E" + (counter++),
+                        repositoryId,
+                        analysisId,
+                        "architecture/cycles.json",
+                        "DependencyCycles",
+                        null,
+                        null,
+                        sanitizeSnippet("Cycles (Count: " + arch.getCycleCount() + "):\n" + arch.getCyclesJson()),
+                        "ARCHITECTURE_CYCLES",
+                        0.9
+                ));
+            }
+            if (arch.getSmellsJson() != null && !arch.getSmellsJson().isBlank() && arch.getSmellCount() > 0 && chunks.size() < maxChunks) {
+                chunks.add(new EvidenceChunk(
+                        "E" + (counter++),
+                        repositoryId,
+                        analysisId,
+                        "architecture/smells.json",
+                        "ArchitectureSmells",
+                        null,
+                        null,
+                        sanitizeSnippet("Smells (Count: " + arch.getSmellCount() + "):\n" + arch.getSmellsJson()),
+                        "ARCHITECTURE_SMELLS",
+                        0.85
+                ));
+            }
+        }
+
+        if (isQualityQuery && qualityFindingRepository != null && chunks.size() < maxChunks) {
+            List<QualityFindingEntity> qFindings = qualityFindingRepository.findByAnalysisId(analysisId);
+            for (int i = 0; i < Math.min(2, qFindings.size()) && chunks.size() < maxChunks; i++) {
+                QualityFindingEntity qf = qFindings.get(i);
+                String snippet = String.format("Quality Finding [%s]: %s - %s\nRule: %s\nLine: %s",
+                        qf.getSeverity(), qf.getTitle(), qf.getDescription(), qf.getRuleId(), qf.getLineNumber());
+                chunks.add(new EvidenceChunk(
+                        "E" + (counter++),
+                        repositoryId,
+                        analysisId,
+                        qf.getFilePath(),
+                        qf.getRuleId(),
+                        qf.getLineNumber(),
+                        qf.getLineNumber(),
+                        sanitizeSnippet(snippet),
+                        "QUALITY_FINDING_" + qf.getSeverity(),
+                        0.8
+                ));
+            }
+        }
+
+        // 3. Keyword Tokenization & Symbol Scoring
+        Set<String> stopWords = Set.of(
+                "what", "where", "when", "which", "who", "whom", "whose", "why", "how", "does", "doing", "did",
+                "are", "were", "been", "being", "have", "has", "had", "can", "could", "should", "would", "will",
+                "shall", "may", "might", "must", "the", "this", "that", "these", "those", "and", "but", "for",
+                "nor", "yet", "from", "into", "onto", "about", "above", "after", "again", "against", "all", "any",
+                "both", "each", "few", "more", "most", "other", "some", "such", "than", "too", "very", "project",
+                "repository", "repo", "codebase", "code", "file", "files", "class", "classes", "method", "methods",
+                "show", "tell", "explain", "give", "list", "describe", "find", "please", "with", "work", "works"
+        );
+        List<String> keywords = new ArrayList<>();
+        if (!lowerQuery.isBlank()) {
+            for (String token : lowerQuery.split("[^a-zA-Z0-9]+")) {
+                if (token.length() >= 3 && !stopWords.contains(token)) {
+                    keywords.add(token);
+                }
+            }
+        }
+
+        record ScoredSymbol(SymbolEntity symbol, int score) {}
+        List<ScoredSymbol> scoredSymbols = new ArrayList<>();
+
+        for (SymbolEntity s : symbols) {
+            int score = 0;
+            String sName = s.getName().toLowerCase();
+            String sPath = s.getFilePath() != null ? s.getFilePath().toLowerCase() : "";
+            String sSig = s.getSignature() != null ? s.getSignature().toLowerCase() : "";
+
+            if (!lowerQuery.isBlank() && sName.contains(lowerQuery)) {
+                score += 30;
+            }
+
+            for (String kw : keywords) {
+                if (sName.equals(kw)) {
+                    score += 15;
+                } else if (sName.contains(kw) || kw.contains(sName)) {
+                    score += 8;
+                }
+                if (sPath.contains(kw)) score += 4;
+                if (sSig.contains(kw)) score += 3;
+            }
+
+            if (s.getKind() == SymbolKind.CLASS || s.getKind() == SymbolKind.INTERFACE) {
+                score += 2;
+            }
+
+            if (score > 0) {
+                scoredSymbols.add(new ScoredSymbol(s, score));
+            }
+        }
+
+        scoredSymbols.sort((a, b) -> Integer.compare(b.score(), a.score()));
+
+        Set<String> addedSymbolNames = new HashSet<>();
+        List<SymbolEntity> selectedSymbols = new ArrayList<>();
+
+        for (ScoredSymbol ss : scoredSymbols) {
+            if (addedSymbolNames.add(ss.symbol().getName())) {
+                selectedSymbols.add(ss.symbol());
+                if (selectedSymbols.size() >= maxChunks - chunks.size()) break;
+            }
+        }
+
+        // 4. Fallback representative symbols if matches are low
+        if (selectedSymbols.size() < (maxChunks - chunks.size())) {
+            List<SymbolEntity> representative = symbols.stream()
+                    .filter(s -> s.getKind() == SymbolKind.CLASS || s.getKind() == SymbolKind.INTERFACE)
+                    .filter(s -> !addedSymbolNames.contains(s.getName()))
+                    .sorted((a, b) -> {
+                        boolean aSpecial = a.getName().matches(".*(Controller|Service|Repository|Application|Config|Model|Handler).*");
+                        boolean bSpecial = b.getName().matches(".*(Controller|Service|Repository|Application|Config|Model|Handler).*");
+                        return Boolean.compare(bSpecial, aSpecial);
+                    })
+                    .limit(maxChunks - chunks.size() - selectedSymbols.size())
+                    .toList();
+
+            for (SymbolEntity rep : representative) {
+                if (addedSymbolNames.add(rep.getName())) {
+                    selectedSymbols.add(rep);
+                }
+            }
+        }
+
+        // 5. Build code evidence chunks
+        for (SymbolEntity s : selectedSymbols) {
+            if (chunks.size() >= maxChunks) break;
             String evidenceId = "E" + (counter++);
             String snippet = extractSnippet(repositoryId, s.getFilePath(), s.getStartLine(), s.getEndLine());
             if (snippet.isBlank()) {
-                snippet = "// Symbol: " + s.getName() + "\n// Signature: " + s.getSignature();
+                snippet = String.format("// Symbol: %s (%s)\n// Path: %s\n// Signature: %s",
+                        s.getName(), s.getKind(), s.getFilePath(), s.getSignature() != null ? s.getSignature() : "N/A");
             }
 
             chunks.add(new EvidenceChunk(
@@ -310,7 +527,7 @@ public class EvidenceSelectionService {
                     s.getEndLine(),
                     sanitizeSnippet(snippet),
                     "SYMBOL_" + s.getKind(),
-                    0.8
+                    0.85
             ));
         }
 

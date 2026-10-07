@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
-import { Shield, Lock, Mail, User, AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, User, AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -47,41 +47,97 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card cm-card" style={{ maxWidth: '440px', padding: '36px 32px' }}>
-        <div className="cm-card-corner-accent" style={{ opacity: 1 }} />
-        <div style={{ marginBottom: '20px' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      {/* Left Product Brand Panel */}
+      <div
+        style={{
+          flex: 1,
+          display: 'none',
+          padding: '60px 48px',
+          borderRight: '1px solid var(--border-color)',
+          background: 'radial-gradient(ellipse at 20% 40%, rgba(56, 189, 248, 0.08) 0%, #070A12 70%)',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+        className="login-brand-panel"
+      >
+        <div>
           <Link
             to="/"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.8rem',
-              color: 'var(--text-muted)',
+              gap: '12px',
               textDecoration: 'none',
-              transition: 'color 0.15s ease',
+              color: '#ffffff',
             }}
           >
-            <ArrowLeft size={14} />
-            <span>&larr; Back to CodeMind</span>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="/logo.png" alt="CodeMind AI" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em' }}>CODEMIND AI</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>v0.9.0 &bull; PROD</div>
+            </div>
           </Link>
         </div>
 
-        <div className="login-header">
-          <div className="login-badge-icon" style={{ backgroundColor: 'rgba(56, 189, 248, 0.12)', color: 'var(--accent-blue)', borderColor: 'rgba(56, 189, 248, 0.3)' }}>
-            <Shield size={30} />
+        <div style={{ maxWidth: '440px' }}>
+          <div className="text-[11px] font-bold text-sky-400 font-mono tracking-widest uppercase mb-2">
+            RESEARCH INVARIANTS
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800 }}>Create your CodeMind account</h2>
-          <p className="login-subtitle">Understand your codebase before you change it.</p>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#ffffff' }}>
+            Empirical intelligence, <br />
+            <span style={{ color: 'var(--accent-blue)' }}>deterministic by design.</span>
+          </h1>
+          <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: '14px' }}>
+            Join software engineers creating deterministic engineering maps with AST parsing, modular coupling metrics, and safe reuse recommendations.
+          </p>
         </div>
 
-        {errorMsg && (
-          <div className="alert-error" role="alert" data-testid="register-error">
-            <AlertCircle size={18} />
-            <span>{errorMsg}</span>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          &copy; 2026 CodeMind AI &bull; Empirical Software Engineering Platform
+        </div>
+      </div>
+
+      {/* Right Registration Form */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px' }}>
+        <div className="cm-card" style={{ width: '100%', maxWidth: '440px', padding: '32px 28px' }}>
+          <div className="cm-card-corner-accent" style={{ opacity: 1 }} />
+          <div style={{ marginBottom: '16px' }}>
+            <Link
+              to="/"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.78rem',
+                color: 'var(--text-muted)',
+                textDecoration: 'none',
+                transition: 'color 0.15s ease',
+              }}
+            >
+              <ArrowLeft size={13} />
+              <span>Back to CodeMind</span>
+            </Link>
           </div>
-        )}
+
+          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '10px', overflow: 'hidden', flexShrink: 0, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)' }}>
+              <img src="/logo.png" alt="CodeMind AI" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff', margin: 0 }}>Create your CodeMind account</h2>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '3px', margin: 0 }}>Understand your codebase before you change it.</p>
+            </div>
+          </div>
+
+          {errorMsg && (
+            <div className="alert-error" role="alert" data-testid="register-error">
+              <AlertCircle size={16} />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
@@ -211,5 +267,6 @@ export const RegisterPage: React.FC = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };

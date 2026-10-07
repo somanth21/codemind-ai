@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, getStoredToken } from './client';
 import { ArchitectureAnalysis, ArchitectureGraph, ArchitectureAnalysisRequest } from '../types/architecture';
 import { PageResponse } from '../types/api';
 
@@ -38,4 +38,22 @@ export const getArchitectureGraph = async (
   return apiClient<ArchitectureGraph>(
     `/api/v1/repositories/${repositoryId}/architecture/${analysisId}/graph`
   );
+};
+
+export const downloadArchitectureReportPdf = async (
+  repositoryId: string,
+  analysisId: string
+): Promise<Blob> => {
+  const token = getStoredToken();
+  const headers = new Headers();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  const response = await fetch(`/api/v1/repositories/${repositoryId}/architecture/${analysisId}/report/pdf`, {
+    headers,
+  });
+  if (!response.ok) {
+    throw new Error('Failed to generate architecture report PDF');
+  }
+  return response.blob();
 };

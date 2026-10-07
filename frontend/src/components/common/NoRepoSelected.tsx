@@ -1,7 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRepository } from '../../context/RepositoryContext';
-import { FolderGit2, Upload, AlertCircle, ArrowRight } from 'lucide-react';
+import { FolderGit2, ArrowUpRight, Upload, Sparkles } from 'lucide-react';
 
 interface NoRepoSelectedProps {
   moduleName?: string;
@@ -9,71 +9,167 @@ interface NoRepoSelectedProps {
 }
 
 export const NoRepoSelected: React.FC<NoRepoSelectedProps> = ({
-  moduleName = 'Repository Analysis',
-  description = 'Deterministic analysis requires an active repository sandbox. Select an ingested repository or upload a new repository ZIP archive.',
+  moduleName = 'Feature Workspace',
+  description = 'Connect or select an active repository to inspect symbols, architecture graphs, and security findings.',
 }) => {
   const navigate = useNavigate();
   const { repositories, selectRepo } = useRepository();
 
   return (
-    <div className="flex min-h-[480px] flex-col items-center justify-center rounded-xl border border-slate-800 bg-slate-900/60 p-8 text-center shadow-lg">
-      <div className="mb-4 rounded-2xl bg-indigo-500/10 p-4 text-indigo-400 border border-indigo-500/20">
-        <FolderGit2 className="h-10 w-10" />
-      </div>
+    <div
+      style={{
+        maxWidth: '1100px',
+        margin: '40px auto',
+        padding: '60px 32px',
+        borderRadius: '24px',
+        backgroundColor: '#0d1220',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 30px 60px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Ambient background glow */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(232, 90, 43, 0.15), transparent 70%)',
+          top: '-150px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          filter: 'blur(40px)',
+          pointerEvents: 'none',
+        }}
+      />
 
-      <h3 className="text-xl font-bold text-slate-100">{moduleName} &mdash; No Active Repository</h3>
-      <p className="mt-2 max-w-lg text-sm text-slate-400 leading-relaxed">
-        {description}
-      </p>
-
-      {repositories.length > 0 ? (
-        <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-sm">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Select Existing Repository:
-          </label>
-          <select
-            onChange={(e) => {
-              if (e.target.value) {
-                selectRepo(e.target.value);
-              }
-            }}
-            defaultValue=""
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"
-          >
-            <option value="" disabled>Choose an ingested repository...</option>
-            {repositories.map((repo) => (
-              <option key={repo.id} value={repo.id}>
-                {repo.name} ({repo.fileCount} files) - {repo.status}
-              </option>
-            ))}
-          </select>
-
-          <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
-            <span>or</span>
-            <button
-              onClick={() => navigate('/repositories')}
-              className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium"
-            >
-              <span>upload a new ZIP</span>
-              <ArrowRight className="h-3 w-3" />
-            </button>
-          </div>
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div
+          style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '16px',
+            backgroundColor: 'rgba(232, 90, 43, 0.12)',
+            border: '1px solid rgba(232, 90, 43, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--ref-orange-3)',
+            marginBottom: '20px',
+            boxShadow: '0 12px 24px -6px rgba(217, 53, 31, 0.25)',
+          }}
+        >
+          <FolderGit2 size={28} />
         </div>
-      ) : (
-        <div className="mt-6 flex flex-col items-center gap-4">
-          <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3.5 py-2 text-xs text-amber-300">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>Zero repositories found in sandbox. Ingest a repository to begin analysis.</span>
+
+        <div className="ref-hero-eyebrow" style={{ marginBottom: '10px' }}>
+          <span className="dot" />
+          <span>REPOSITORY CONTEXT REQUIRED</span>
+        </div>
+
+        <h2
+          style={{
+            fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            color: '#ffffff',
+            margin: '0 0 12px 0',
+          }}
+        >
+          Connect a repository to use {moduleName}
+        </h2>
+
+        <p
+          style={{
+            fontSize: '0.92rem',
+            color: 'var(--ref-ink-soft)',
+            maxWidth: '560px',
+            lineHeight: 1.6,
+            margin: '0 0 32px 0',
+          }}
+        >
+          {description}
+        </p>
+
+        {/* Existing repositories selector if any */}
+        {repositories.length > 0 && (
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '380px',
+              marginBottom: '28px',
+              padding: '16px 20px',
+              borderRadius: '14px',
+              backgroundColor: '#070a12',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--ref-mute)', textTransform: 'uppercase', marginBottom: '8px', textAlign: 'left' }}>
+              Select Active Ingested Repository:
+            </div>
+            <select
+              onChange={(e) => {
+                if (e.target.value) {
+                  selectRepo(e.target.value);
+                }
+              }}
+              defaultValue=""
+              aria-label="Select Ingested Repository"
+              className="cm-input-dev"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                fontSize: '0.85rem',
+                backgroundColor: '#121829',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="" disabled>Choose an ingested repository...</option>
+              {repositories.map((repo) => (
+                <option key={repo.id} value={repo.id}>
+                  {repo.name} ({repo.fileCount} files) - {repo.status}
+                </option>
+              ))}
+            </select>
           </div>
+        )}
+
+        {/* CTA Buttons with rotating arrow badge */}
+        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             onClick={() => navigate('/repositories')}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-500 transition shadow"
+            className="ref-arrow-pill"
           >
-            <Upload className="h-4 w-4" />
-            <span>Go to Repository Ingestion</span>
+            <span>Connect GitHub</span>
+            <span className="ref-ar">
+              <ArrowUpRight size={14} />
+            </span>
+          </button>
+
+          <button
+            onClick={() => navigate('/repositories')}
+            className="ref-arrow-pill"
+            style={{ background: 'rgba(232, 90, 43, 0.12)', borderColor: 'rgba(232, 90, 43, 0.4)' }}
+          >
+            <Upload size={14} style={{ color: 'var(--ref-orange-3)' }} />
+            <span>Upload Repository Archive</span>
+            <span className="ref-ar">
+              <ArrowUpRight size={14} />
+            </span>
           </button>
         </div>
-      )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '30px', fontSize: '0.78rem', color: 'var(--ref-mute)', fontFamily: 'var(--font-mono)' }}>
+          <Sparkles size={13} style={{ color: 'var(--ref-orange-3)' }} />
+          <span>Deterministic Indexing &bull; 100% Static Provenance &bull; Zero Hallucination</span>
+        </div>
+      </div>
     </div>
   );
 };

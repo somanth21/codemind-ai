@@ -16,8 +16,9 @@ export const ArchitecturePage: React.FC = () => {
   }
 
   return (
-    <div className="architecture-page space-y-6" data-testid="architecture-page">
+    <div className="feature-view-container space-y-6" data-testid="architecture-page">
       <ArchitectureAnalysisView repositoryId={selectedRepo.id} />
     </div>
   );
 };
+

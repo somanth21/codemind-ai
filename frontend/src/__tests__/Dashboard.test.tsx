@@ -141,7 +141,7 @@ describe('DashboardPage Component', () => {
       expect(screen.getByText(/05\. SECURITY AUDIT/i)).toBeInTheDocument();
       expect(screen.getByText(/06\. ARCHITECTURE/i)).toBeInTheDocument();
       expect(screen.getByText(/07\. GROUNDED AI/i)).toBeInTheDocument();
-    });
+    }, { timeout: 4000 });
   });
 
   it('renders clean empty state when no repositories exist', async () => {

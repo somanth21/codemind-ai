@@ -85,6 +85,27 @@ public class ArchitectureController {
         return ResponseEntity.ok(ArchitectureGraphResponse.fromGraph(graph));
     }
 
+    @GetMapping("/{analysisId}/report/pdf")
+    public ResponseEntity<byte[]> getArchitectureReportPdf(
+            @PathVariable UUID repositoryId,
+            @PathVariable UUID analysisId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        UserEntity requester = getAuthenticatedUser(principal);
+        byte[] pdfBytes = architectureService.generateArchitectureReportPdf(repositoryId, analysisId, requester);
+
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(org.springframework.http.ContentDisposition.attachment()
+                .filename("codemind-architecture-report-" + repositoryId.toString().substring(0, 8) + ".pdf")
+                .build());
+        headers.setContentLength(pdfBytes.length);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
+
     private UserEntity getAuthenticatedUser(UserPrincipal principal) {
         return userRepository.findById(principal.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", principal.getId()));
