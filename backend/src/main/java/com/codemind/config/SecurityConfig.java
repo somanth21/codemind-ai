@@ -71,6 +71,29 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        // Allow frontend SPA static assets and client-side routing
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/favicon.*",
+                                "/assets/**",
+                                "/*.svg",
+                                "/*.png",
+                                "/*.ico",
+                                "/*.json",
+                                "/*.js",
+                                "/*.css",
+                                "/login",
+                                "/register",
+                                "/dashboard",
+                                "/repositories/**",
+                                "/architecture/**",
+                                "/reuse/**",
+                                "/security/**",
+                                "/ai/**",
+                                "/ponytail/**",
+                                "/settings/**"
+                        ).permitAll()
                         // Require authentication for all other /api/v1 endpoints
                         .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().authenticated()
@@ -97,8 +120,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Strict origin matching: never use wildcard '*' with credentials
-        config.setAllowedOrigins(allowedOrigins);
+        boolean hasWildcard = allowedOrigins != null && allowedOrigins.stream().anyMatch(o -> o.contains("*"));
+        if (hasWildcard) {
+            config.setAllowedOriginPatterns(allowedOrigins);
+        } else {
+            config.setAllowedOrigins(allowedOrigins);
+        }
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Correlation-ID"));
         config.setExposedHeaders(List.of("X-Correlation-ID"));

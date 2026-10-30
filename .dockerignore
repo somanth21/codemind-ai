@@ -1,0 +1,12 @@
+**/.git
+**/.gitignore
+**/node_modules
+**/dist
+**/target
+**/*.class
+**/*.log
+**/.idea
+**/*.iml
+**/codemind-sandbox
+**/.DS_Store
+**/Thumbs.db

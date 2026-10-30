@@ -9,10 +9,10 @@ public class LlmProperties {
 
     private String provider = "GEMINI";
     private String apiKey = "placeholder_api_key";
-    private String model = "gemini-1.5-pro";
+    private String model = "gemini-3.6-flash";
     private double temperature = 0.1;
     private int maxTokens = 2048;
-    private int timeoutSeconds = 15;
+    private int timeoutSeconds = 20;
     private int rateLimitPerUserPerMinute = 10;
     private int rateLimitPerRepoPerMinute = 20;
 

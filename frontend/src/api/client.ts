@@ -36,6 +36,19 @@ export const clearStoredToken = (): void => {
   }
 };
 
+export const getApiBaseUrl = (): string => {
+  const envUrl = (import.meta as any).env?.VITE_API_BASE_URL || '';
+  return envUrl ? envUrl.replace(/\/$/, '') : '';
+};
+
+export const resolveApiUrl = (endpoint: string): string => {
+  const baseUrl = getApiBaseUrl();
+  if (baseUrl && endpoint.startsWith('/')) {
+    return `${baseUrl}${endpoint}`;
+  }
+  return endpoint;
+};
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -51,7 +64,7 @@ export async function apiClient<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(resolveApiUrl(endpoint), {
     ...options,
     headers,
   });

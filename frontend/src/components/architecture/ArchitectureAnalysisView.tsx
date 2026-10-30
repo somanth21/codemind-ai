@@ -380,6 +380,38 @@ export const ArchitectureAnalysisView: React.FC<ArchitectureAnalysisViewProps> =
         </div>
       )}
 
+      {/* Empty State when no analysis has been run yet */}
+      {!loading && !currentAnalysis && (
+        <div
+          className="cm-clay-card text-center relative z-10"
+          style={{ padding: '48px 32px', maxWidth: '640px', margin: '20px auto', width: '100%' }}
+        >
+          <div
+            className="cm-icon-tile mx-auto mb-4"
+            style={{ width: '56px', height: '56px', background: 'rgba(232, 90, 43, 0.15)', color: '#f97316' }}
+          >
+            <Layers size={28} />
+          </div>
+          <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', margin: '0 0 8px 0' }}>
+            No Architecture Analysis Available
+          </h2>
+          <p style={{ fontSize: '0.86rem', color: 'var(--ref-mute)', lineHeight: 1.6, margin: '0 0 24px 0' }}>
+            Compute package coupling, cyclic dependency graphs, architectural hotspots, and UML diagrams for this repository.
+          </p>
+          <button
+            onClick={handleRunAnalysis}
+            disabled={analyzing}
+            className="cm-arrow-pill cm-arrow-pill-primary mx-auto"
+            style={{ padding: '10px 10px 10px 22px', fontSize: '0.88rem' }}
+          >
+            <span>{analyzing ? 'Analyzing Architecture...' : 'Run Architecture Analysis'}</span>
+            <span className="cm-cta-dot">
+              {analyzing ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* ============ ARCHITECTURE OVERVIEW COMPACT METRICS ============ */}
       {currentAnalysis && (
         <section className="engineering-overview-strip" style={{ gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }} aria-label="Architecture Overview">
@@ -430,10 +462,10 @@ export const ArchitectureAnalysisView: React.FC<ArchitectureAnalysisViewProps> =
       )}
 
       {/* ============ MAIN ARCHITECTURE DIAGRAM (PRIMARY HERO ELEMENT) ============ */}
-      {currentAnalysis && graph && (
+      {currentAnalysis && (
         <section aria-label="Main Architecture Diagram">
           <DependencyGraphViewer
-            graph={graph}
+            graph={graph || { nodes: [], edges: [] }}
             analysis={currentAnalysis}
             activeView={graphView}
             onViewChange={(view) => setGraphView(view)}

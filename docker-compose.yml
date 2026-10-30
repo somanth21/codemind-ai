@@ -1,0 +1,99 @@
+# ==============================================================================
+# CodeMind AI - Full Stack Docker Compose Orchestration
+# Services: PostgreSQL 16 + Spring Boot Backend + Nginx React Frontend
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Database Service (PostgreSQL 16)
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: codemind-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-codemind_db}
+      POSTGRES_USER: ${DB_USER:-codemind_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-codemind_secret_pass}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - codemind-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-codemind_user} -d ${DB_NAME:-codemind_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - codemind-net
+
+  # ----------------------------------------------------------------------------
+  # 2. Backend Service (Spring Boot 3 + Java 17 + AST & Architecture Engine)
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: codemind-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      USE_ENV_DATABASE_URL: ${USE_ENV_DATABASE_URL:-false}
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-codemind_db}
+      DB_USER: ${DB_USER:-codemind_user}
+      DB_PASSWORD: ${DB_PASSWORD:-codemind_secret_pass}
+      JWT_SECRET: ${JWT_SECRET:-c3VwZXJfc2VjcmV0X2tleV9mb3JfZGV2ZWxvcG1lbnRfb25seV9kb19ub3RfdXNlX2luX3Byb2RfdW5sZXNzX292ZXJyaWRkZW5fYnlfZW52}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-900000}
+      JWT_REFRESH_EXPIRATION_MS: ${JWT_REFRESH_EXPIRATION_MS:-604800000}
+      CODEMIND_LLM_API_KEY: ${CODEMIND_LLM_API_KEY:-your_gemini_api_key_here}
+      LLM_MODEL: ${LLM_MODEL:-gemini-3.6-flash}
+      LLM_PROVIDER: ${LLM_PROVIDER:-GEMINI}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:5173,http://127.0.0.1:5173}
+      CODEMIND_ADMIN_EMAIL: ${CODEMIND_ADMIN_EMAIL:-admin@codemind.ai}
+      CODEMIND_ADMIN_PASSWORD: ${CODEMIND_ADMIN_PASSWORD:-AdminSecure123!}
+      CODEMIND_SANDBOX_ROOT: /app/codemind-sandbox
+    ports:
+      - "8080:8080"
+    volumes:
+      - codemind-sandbox:/app/codemind-sandbox
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - codemind-net
+
+  # ----------------------------------------------------------------------------
+  # 3. Frontend Service (Vite React SPA + Nginx Reverse Proxy)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: codemind-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - codemind-net
+
+# ------------------------------------------------------------------------------
+# Persistent Volumes & Private Network
+# ------------------------------------------------------------------------------
+volumes:
+  codemind-pgdata:
+    name: codemind-pgdata
+  codemind-sandbox:
+    name: codemind-sandbox
+
+networks:
+  codemind-net:
+    name: codemind-net
+    driver: bridge

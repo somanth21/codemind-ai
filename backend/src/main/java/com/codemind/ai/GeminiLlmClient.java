@@ -72,10 +72,11 @@ public class GeminiLlmClient implements LlmClient {
     }
 
     private static final List<String> FALLBACK_MODELS = List.of(
-            "gemini-flash-lite-latest",
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
             "gemini-flash-latest",
-            "gemini-3.8-flash",
-            "gemini-3.6-flash"
+            "gemini-flash-lite-latest",
+            "gemini-3.7-flash"
     );
 
     private LlmResponse executeGeminiRequest(LlmRequest request, String responseMimeType, String schema) {

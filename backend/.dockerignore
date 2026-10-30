@@ -1,0 +1,11 @@
+target/
+*.class
+.git
+.gitignore
+.idea
+*.iml
+.mvn/wrapper/maven-wrapper.jar
+codemind-sandbox/
+*.log
+.DS_Store
+Thumbs.db

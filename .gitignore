@@ -1,5 +1,6 @@
 # Environment & Secrets (NEVER commit real credentials)
 .env
+.env.production
 .env.local
 .env.*.local
 *.pem
@@ -8,6 +9,7 @@
 # Backend - Maven & Java
 backend/target/
 backend/.mvn/apache-maven-*/
+backend/src/main/resources/static/
 *.class
 *.jar
 *.war
